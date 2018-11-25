@@ -251,7 +251,7 @@ Javascript Util是在jQuery基础上提供部分插件, 浏览器内核以Chrome
     </thead>
 </table>
 ```
-- table属性说明    
+- &lt;table&gt;属性说明    
 
 | 属性名 | 类型 | 可选值 | 说明 |
 | :------ | :---- | :------ | :---- |
@@ -261,6 +261,18 @@ Javascript Util是在jQuery基础上提供部分插件, 浏览器内核以Chrome
 | data-sizes | number | 正整数 | 多个页码值使用英文逗号分隔(,) |
 | data-count | number | 正整数 | 页码显示数量, 推荐使用奇数(如5,7等) |
 | data-layout | string | total, sizes, prev, pager, next, jumper | 页脚布局可选一个或多个 |
+
+- &lt;th&gt;属性说明   
+
+| 属性名 | 类型 | 可选值 | 说明 |
+| :------ | :---- | :------ | :---- |
+| data-type | string | index <br>expand <br>selection <br>text <br>enum <br>date <br>html <br>template | `index`: 本页数据行数索引 <br> `expand`: 可展开行(展开的内容包裹在[data-expand]容器内部) <br>`selection`:可选择数据行 <br>**`text`**:文本内容(默认值) <br>`enum`: 枚举值 <br>`date`:日期 <br>`html`:内容中包含HTML内容 <br>`template`:模板内容(需要配合`[data-template]`使用) |
+| data-text | string | any | 表头名称, 如果是简单类型`data-type`可使用标签体代替 |
+| data-selection | string | radio/checkbox | 如果`data-type`指定为`selection`时, 由当前配置指定选择类型;<br>`radio`:单选数据行 <br>`checkbox`:多选数据行 |
+| data-prop | string | `ognl`表达式 | 单元格数据属性名, 如: `bar`、`foo.bar` |
+| data-enum | json | json-string | 如果`data-type`指定为`enum`时, 由当前配置指定可匹配范围; JSON对象字符串表现形式, 参考JSON.stringify() |
+| data-date-format | string | y,M,d,h,m,s,S |  如果`data-type`指定为`date`时, 由当前配置格式化日期对象(时间戳) <br>`y`:年, yyyy/yy <br>`M`:月, mm <br>`d`:日,dd <br>`h`:时, hh <br>`m`:分, mm <br>`s`:秒: ss <br>`S`:毫秒值, S |
+| data-writable | -/- | -/- | 可编辑单元格标记, 可与第一个子控件`[data-writable]`配合使用 |
 
 #### 获取实例
   ```javascript
