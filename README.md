@@ -225,7 +225,7 @@ Javascript Util是在jQuery基础上提供部分插件, 浏览器内核以Chrome
 #### Table.data(data?)  
 获取/设置表格数据
 #### Table.actionRows(rows?)  
-获取/设置选中的数据, 数据必须从**Table.data()**中获取.
+获取/设置选中的数据, 数据必须从**Table.data**()中获取.
 #### Table.clearActions()  
 清空选中的数据行
 #### Table.events(tableEvents)  
