@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Form Test</title>
+    <style>
+        .red {
+            border: 1px solid #F00;
+        }
+    </style>
+</head>
+<body>
+
+<form action="#" onsubmit="return false">
+    <p>Input Text：<input type="text" name="text" value="123"
+                         min="" max="" minlength="" maxlength="" required="required"
+                         data-regexp="/^[a-z][a-z0-9_$]{5,15}$/i"
+                         data-regexp-error="用户名仅支持6~16位字母/数字/下划线/美元符"></p>
+    <p>Input Password：<input type="password" name="password"
+                             data-not-eq="[name='text']" data-not-eq-error="密码不能与登录名相同"
+                             data-regexp="/^\S{6,18}$/g" data-regexp-error="密码长度只支持6~18个字符"></p>
+    <p>Input rePassword：<input type="password" name="rePassword" data-eq="[name='password']" data-eq-error="两次密码输入不一致">
+    </p>
+    <p>Input Number：<input type="number" name="number" min="10" max="20" step="3"></p>
+    <p>Input min/maxLength：<input name="mmlength" minlength="5" maxlength="10" required="required"></p>
+    <p>Input File：<input type="file" name="file"></p>
+    <p>
+        Radio：
+        <label><input type="radio" name="radio" value="radio1" checked="checked">Radio1</label>
+        <label><input type="radio" name="radio" value="radio2">Radio2</label>
+    </p>
+    <p>
+        Checkbox：
+        <label><input type="checkbox" name="checkbox" value="Checkbox1" checked="checked">Checkbox1</label>
+        <label><input type="checkbox" name="checkbox" value="Checkbox2" checked="checked">Checkbox2</label>
+        <label><input type="checkbox" name="checkbox" value="Checkbox3">Checkbox3</label>
+    </p>
+    <p>
+        Select Normal：
+        <select name="select">
+            <option value="select1">Select 1</option>
+            <option value="select2" selected="selected">Select 2</option>
+            <option value="select3">Select 3</option>
+        </select>
+    </p>
+    <p>
+        Select Multiple：
+        <select name="selectMultiple" multiple="multiple">
+            <option value="select1">Select 1</option>
+            <option value="select2" selected="selected">Select 2</option>
+            <option value="select3" selected="selected">Select 3</option>
+        </select>
+    </p>
+    <p>
+        Textarea：
+        <textarea name="textarea" cols="30" rows="10" required="required"></textarea>
+    </p>
+</form>
+<p>
+    <button id="get">获取表单数据</button>
+    <button id="set">设置表单数据</button>
+    <button id="clear">清空表单</button>
+    <button id="restore">还原默认值</button>
+    <button id="valid">表单验证</button>
+</p>
+
+
+<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>-->
+<script src="statics/jquery-v3.3.1.js"></script>
+<script src="statics/jsu/util/common.js"></script>
+<script src="statics/jsu/util/Logger.js"></script>
+<script src="statics/jsu/form/Form.js"></script>
+<script>
+    $(function () {
+        var logger = jsu.Logger('Test Html');
+        var form = window.form = new jsu.Form(document.forms[0], true, true);
+        logger.log(form);
+
+        $('#get').click(function () {
+            logger.log(form.data());
+        });
+        $('#set').click(function () {
+            window.data = {
+                "text": "11",
+                "password": "22",
+                "file": "",
+                "radio": "radio1",
+                "checkbox": ["Checkbox1", "Checkbox3"],
+                "select": "select2",
+                "selectMultiple": ["select1", "select3"],
+                "textarea": "112233"
+            };
+            form.data(data);
+        });
+        $('#clear').click(function () {
+            logger.info('Form data before clearing: ', form.clear());
+        });
+        $('#restore').click(function () {
+            logger.info('Form data before clearing: ', form.restore());
+        });
+        $('#valid').click(function () {
+            logger.info('Form data before clearing: ', form.validation({
+                success: function (res) {
+                    res.el.removeClass('red');
+                },
+                failed: function (res) {
+                    res.el.addClass('red');
+                },
+                completed: function () {
+                    logger.error('>>> completed', arguments);
+                }
+            }));
+        });
+    });
+</script>
+</body>
+</html>

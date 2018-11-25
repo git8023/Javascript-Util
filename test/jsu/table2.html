@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>表格控件测试</title>
+    <!--<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">-->
+    <link href="statics/font-awesome-4.7.0/css/font-awesome.css" rel="stylesheet">
+    <link rel="stylesheet" href="statics/jsu/grid/Table.css">
+    <style>
+        .grid table {
+            width: 100%;
+            border-collapse: collapse;
+            border-spacing: 0;
+        }
+
+        .grid table,
+        .grid table td,
+        .grid table th {
+            border: 1px solid #AAA;
+            padding: 5px;
+            text-align: left;
+        }
+
+        .grid table th {
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+<h1>测试单表格基础功能</h1>
+<div class="grid grid_2">
+    <table class="table" style="color:#AAA">
+        <thead>
+        <tr>
+            <th data-type="index" data-text></th>
+            <th data-type="expand">
+                <div data-expand>
+                    <table class="table" style="color:#AAA; display:none;">
+                        <thead>
+                        <tr>
+                            <th data-type="selection" data-selection="radio"></th>
+                            <th data-type="text" data-prop="name">文本</th>
+                            <th data-type="html" data-prop="note" data-writable>编辑简介</th>
+                            <th data-type="date" data-prop="date" data-date-format="yyyy-MM-dd hh:mm:ss:S"data-writable>编辑注册时间</th>
+                            <th data-type="enum" data-prop="gender" data-writable data-enum='{"MALE":"男","FEMALE":"女"}' data-text="性别"></th>
+                            <th data-type="enum" data-prop="gender" data-writable data-enum='{"MALE":"男","FEMALE":"女"}' data-text="编辑性别">
+                                <div data-writable>
+                                    <label>
+                                        <select name>
+                                            <option value="MALE">男</option>
+                                            <option value="FEMALE">女</option>
+                                        </select>
+                                    </label>
+                                </div>
+                            </th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+            </th>
+            <th data-type="selection" data-selection="checkbox"></th>
+            <th data-type="text" data-prop="name">文本</th>
+            <th data-type="enum" data-prop="gender" data-enum='{"MALE":"男","FEMALE":"女"}'>枚举</th>
+            <th data-type="date" data-prop="date" data-date-format="yyyy-MM-dd hh:mm:ss:S" data-text="注册时间"></th>
+            <th data-type="html" data-prop="note">简介</th>
+
+            <th data-type="html" data-prop="note" data-writable>编辑简介</th>
+            <th data-type="date" data-prop="date" data-date-format="yyyy-MM-dd hh:mm:ss:S" data-writable>编辑注册时间</th>
+            <th data-type="enum" data-prop="gender" data-writable data-enum='{"MALE":"男","FEMALE":"女"}'
+                data-text="编辑性别">
+                <div data-writable>
+                    <label>
+                        <select name>
+                            <option value="MALE">男</option>
+                            <option value="FEMALE">女</option>
+                        </select>
+                    </label>
+                </div>
+            </th>
+
+            <th data-type="template" data-text="操作">
+                <div data-template>
+                    <a href="javascript:" class="row-data">Get Data</a>
+                    <button class="update-name">Update Name</button>
+                </div>
+            </th>
+        </tr>
+        </thead>
+    </table>
+</div>
+
+<p>
+    <button id="init">Init/Re-Init</button>
+    <button id="destroy">Destroy</button>
+    <button id="getActionRows">Get Action Rows</button>
+    <button id="actionSecond">Set Action Second</button>
+    <button id="clearActions">Clear Actions</button>
+</p>
+
+<script src="statics/jquery-v3.3.1.js"></script>
+<script src="statics/jsu/util/common.js"></script>
+<script src="statics/jsu/util/Logger.js"></script>
+<script src="statics/jsu/grid/Table.js"></script>
+
+<script>
+    $(function () {
+
+        var logger = jsu.Logger('Table Test Html');
+
+        // var table1 = jsu.Table($('.grid_1'), true, true);
+        var table = jsu.Table($('.grid_2'), true, true);
+
+        $('#destroy').click(function () {
+            table.destroy();
+        });
+        $('#init').click(function () {
+            table.init();
+        });
+        $('#getActionRows').click(function () {
+            var actionRows = table.actionRows();
+            logger.info('action rows ', actionRows);
+        });
+        $('#actionSecond').click(function () {
+            var data = table.data();
+            // var actionRows = table.actionRows(data);
+            var actionRows = table.actionRows(data[1]);
+            logger.info('Action Second ', actionRows);
+        });
+        $('#clearActions').click(function () {
+            logger.info('Clear Actions ', table.clearActions());
+        });
+
+        // logger.info(table1);
+        logger.info(table);
+        var data = [{
+            name: 'name_1',
+            gender: 'MALE',
+            date: new Date().getTime(),
+            note: '我是<b>加粗</b>内容',
+            birthday: new Date().getTime()
+        }, {
+            name: 'name_2',
+            gender: 'FEMALE',
+            date: new Date().getTime() + 1000000,
+            note: '我是<b>加粗</b>内容',
+            birthday: new Date().getTime()
+        }];
+
+        table.events({
+            cellReady: function () {
+                logger.info('cellReady', arguments);
+            },
+            rowReady: function () {
+                logger.info('rowReady', arguments);
+            },
+            updated: function () {
+                logger.info('updated', arguments);
+
+                jsu.$common.uniqueDelegate(this, '.row-data', 'click', function (e) {
+                    e.stopPropagation();
+                    logger.info('>>>>>>>>>>', table.rowData(this));
+                });
+                jsu.$common.uniqueDelegate(this, '.update-name', 'click', function (e) {
+                    e.stopPropagation();
+                    var
+                        row = table.rowData(this),
+                        clone = jsu.objects.clone(row);
+                    clone.name = 'name_updated >>> ' + Math.random();
+                    table.updateRow(clone, 'name', row.name);
+                });
+            },
+            mouseEnter: function () {
+                logger.info('mouseEnter', arguments);
+            },
+            mouseLeave: function () {
+                logger.info('mouseLeave', arguments);
+            },
+            click: function () {
+                logger.info('click', arguments);
+            },
+            action: function () {
+                logger.log('table action', arguments);
+            },
+            expandOpen: function (row, $container) {
+                logger.info('expandOpen', arguments);
+                // var table = jsu.Table($container, true);
+                // table.data = [row];
+                // return false;
+            },
+            expandOpened: function (row, $container) {
+                logger.info('expandOpened', arguments);
+                var table = jsu.Table($container, true);
+                jsu.common.timer(function () {
+                    table.data([row]);
+                }, 2000);
+            },
+            expandClose: function () {
+                logger.info('expandClose', arguments);
+                // return false;
+            },
+            expandClosed: function () {
+                logger.info('expandClosed', arguments);
+            }
+        });
+
+        setTimeout(function () {
+            table.data(data);
+        }, 1000);
+
+    });
+</script>
+</body>
+</html>

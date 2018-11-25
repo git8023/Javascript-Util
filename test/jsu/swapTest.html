@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>交换控件测试</title>
+    <style>
+        .container {
+            border: 1px solid #F00;
+        }
+
+        .block {
+            display: inline-block;
+            width: 200px;
+            height: 200px;
+            user-select: none;
+            cursor: pointer;
+        }
+
+        .block:hover {
+            opacity: .65;
+        }
+
+        .moving {
+            background-color: #AAA;
+            color: #F00;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container container-1">
+    <div class="block block-1" style="background-color:#AA0">111</div>
+    <div class="block block-2" style="background-color:#0AA">222</div>
+    <div class="block block-3" style="background-color:#A0A">333</div>
+</div>
+
+<br>
+<div class="container container-2">
+    <table border="1" width="100%">
+        <thead>
+        <tr style="user-select: none;">
+            <th>01</th>
+            <th>02</th>
+            <th>03</th>
+            <th>04</th>
+            <th>05</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>001</td>
+            <td>002</td>
+            <td>003</td>
+            <td>004</td>
+            <td>005</td>
+        </tr>
+        <tr>
+            <td>001</td>
+            <td>002</td>
+            <td>003</td>
+            <td>004</td>
+            <td>005</td>
+        </tr>
+        <tr>
+            <td>001</td>
+            <td>002</td>
+            <td>003</td>
+            <td>004</td>
+            <td>005</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<script src="statics/jquery-v3.3.1.js"></script>
+<script>
+    $(function () {
+
+        var $src = null, srcIndex = -1;
+
+        // mousedown -> mouseenter ->  mousedup
+        $('.block').mousedown(function () {
+            // 鼠标按下, 记录各自的位置
+            // 把光标修改为左右移动提示
+            $src = $(this).addClass('moving');
+            srcIndex = $src.index();
+            console.log('鼠标按下', $src);
+        });
+        $('.block').mouseenter(function () {
+            console.log('鼠标进入', $src);
+            var
+                $this = $(this),
+                thisIndex = $this.index();
+            if (!$src) return;
+            if (thisIndex > srcIndex) $this.after($src);
+            else $src.after($this);
+            srcIndex = $src.index();
+        });
+        $('.block').mouseup(function () {
+            console.log('鼠标释放', $src);
+            $('.block').removeClass('moving');
+            $src = null;
+            srcIndex = -1;
+        });
+
+    })
+</script>
+<script>
+    $(function () {
+        var $trs = $('table tbody tr'),
+            $th = null;
+        $('th').mousedown(function () {
+            $th = $(this).addClass('moving');
+        });
+        $('th').mouseenter(function () {
+            if ($th) {
+                var $this = $(this),
+                    currIndex = $this.index(),
+                    srcIndex = $th.index(),
+                    moveToRight = (currIndex > srcIndex);
+
+                if (moveToRight) $this.after($th);
+                else $this.before($th);
+
+                $trs.each(function () {
+                    var
+                        $srcCol = $(this).find('td:eq("' + srcIndex + '")'),
+                        $currCol = $(this).find('td:eq("' + currIndex + '")');
+                    if (moveToRight) $currCol.after($srcCol);
+                    else $currCol.before($srcCol);
+                })
+            }
+        });
+        $('.container-2').mouseleave(init);
+        $('.container-2').mouseup(init);
+
+        function init() {
+            if ($th) {
+                $th.removeClass('moving');
+                $th = null;
+            }
+        }
+    })
+</script>
+</body>
+</html>

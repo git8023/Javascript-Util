@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Table & Pager整合</title>
+    <link rel="stylesheet" href="statics/jsu/grid/Table.css">
+    <link rel="stylesheet" href="statics/jsu/grid/Pager.css">
+    <link rel="stylesheet" href="statics/font-awesome-4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+
+<h3>Table & Pager整合</h3>
+<hr>
+<div class="container">
+    <table class="table"
+           data-pagination
+           data-url='Page.jsp'
+           data-reload='true'
+           data-sizes='10,20,50,100'
+           data-count='7'
+           data-layout="total, sizes, prev, pager, next, jumper">
+        <thead>
+        <tr>
+            <th data-type="index" data-text="索引"></th>
+            <th data-type="expand" data-text="展开">
+                <div data-expand>Expand 模板</div>
+            </th>
+            <th data-type="selection" data-selection="checkbox" data-text="全选"></th>
+            <th data-type="text" data-prop="name">文本</th>
+            <th data-type="enum" data-prop="gender" data-enum='{"MALE":"男","FEMALE":"女"}'>枚举</th>
+            <th data-type="date" data-prop="date" data-date-format="yyyy-MM-dd hh:mm:ss:S" data-text="注册时间"></th>
+            <th data-type="html" data-prop="note">简介</th>
+            <th data-type="html" data-prop="note" data-writable>编辑简介</th>
+            <th data-type="date" data-prop="date" data-date-format="yyyy-MM-dd hh:mm:ss:S" data-writable>编辑注册时间</th>
+            <th data-type="enum" data-prop="gender" data-writable data-enum='{"MALE":"男","FEMALE":"女"}'
+                data-text="编辑性别">
+                <div data-writable>
+                    <label>
+                        <select name>
+                            <option value="MALE">男</option>
+                            <option value="FEMALE">女</option>
+                        </select>
+                    </label>
+                </div>
+            </th>
+            <th data-type="template" data-text="操作">
+                <div data-template>
+                    <a href="javascript:" class="row-data">Get Data</a>
+                    <button class="update-name">Update Name</button>
+                </div>
+            </th>
+        </tr>
+        </thead>
+    </table>
+</div>
+
+<script src="statics/jquery-v3.3.1.js"></script>
+<script src="statics/jsu/util/common.js"></script>
+<script src="statics/jsu/util/Logger.js"></script>
+<script src="statics/jsu/grid/Table.js"></script>
+<script src="statics/jsu/grid/Pager.js"></script>
+
+<script>
+    $(function () {
+
+        var logger = jsu.Logger('Table Test Html');
+
+        // var table1 = jsu.Table($('.grid_1'), true, true);
+        var table = jsu.Table($('.container'), true, true);
+
+        $('#destroy').click(function () {
+            table.destroy();
+        });
+        $('#init').click(function () {
+            table.init();
+        });
+        $('#getActionRows').click(function () {
+            var actionRows = table.actionRows();
+            logger.info('action rows ', actionRows);
+        });
+        $('#actionSecond').click(function () {
+            var data = table.data();
+            // var actionRows = table.actionRows(data);
+            var actionRows = table.actionRows(data[1]);
+            logger.info('Action Second ', actionRows);
+        });
+        $('#clearActions').click(function () {
+            logger.info('Clear Actions ', table.clearActions());
+        });
+
+        // logger.info(table1);
+        logger.info(table);
+
+        table.events({
+            cellReady: function () {
+                logger.info('cellReady', arguments);
+            },
+            rowReady: function () {
+                logger.info('rowReady', arguments);
+            },
+            updated: function () {
+                logger.info('updated', arguments);
+
+                jsu.$common.uniqueDelegate(this, '.row-data', 'click', function (e) {
+                    e.stopPropagation();
+                    logger.info('>>>>>>>>>>', table.rowData(this));
+                });
+                jsu.$common.uniqueDelegate(this, '.update-name', 'click', function (e) {
+                    e.stopPropagation();
+                    var
+                        row = table.rowData(this),
+                        clone = jsu.objects.clone(row);
+                    clone.name = 'name_updated >>> ' + Math.random();
+                    table.updateRow(clone, 'name', row.name);
+                });
+            },
+            mouseEnter: function () {
+                logger.info('mouseEnter', arguments);
+            },
+            mouseLeave: function () {
+                logger.info('mouseLeave', arguments);
+            },
+            click: function () {
+                logger.info('click', arguments);
+            },
+            action: function () {
+                logger.log('table action', arguments);
+            },
+            expandOpen: function () {
+                logger.info('expandOpen', arguments);
+                // return false;
+            },
+            expandOpened: function () {
+                logger.info('expandOpened', arguments);
+            },
+            expandClose: function () {
+                logger.info('expandClose', arguments);
+                // return false;
+            },
+            expandClosed: function () {
+                logger.info('expandClosed', arguments);
+            }
+        });
+
+        table.paginationEvents({
+            formatter: function (resp) {
+                logger.info('>>>>>>>', arguments);
+                if (true === resp.flag)
+                    return resp.data;
+
+                logger.warn('服务器处理失败', resp);
+                return {data: [], total: 0, index: 1};
+            }
+        })
+
+    });
+</script>
+</body>
+</html>

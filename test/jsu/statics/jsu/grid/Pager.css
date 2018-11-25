@@ -1,0 +1,37 @@
+@charset "UTF-8";
+.jsu-pager-bounds,
+.jsu-pager-bounds * {-webkit-box-sizing:border-box; -moz-box-sizing:border-box; box-sizing:border-box; outline:none;}
+.jsu-pager-bounds > * {margin-right:15px;}
+.jsu-pager-bounds .jsu-pager-previous-container {margin-right:0;}
+.jsu-pager-bounds .jsu-pager-disable {background-color:#EEE; pointer-events:none; opacity:.7;}
+
+.jsu-pager-bounds .jsu-pager-next-container,
+.jsu-pager-bounds .jsu-pager-previous-container {width:40px; text-align:center;}
+
+.jsu-pager-bounds .jsu-pager-next-container,
+.jsu-pager-bounds .jsu-pager-previous-container,
+.jsu-pager-bounds .jsu-pager-page-trigger,
+.jsu-pager-bounds .jsu-pager-jump-trigger {border:1px solid #DDD;}
+
+.jsu-pager-bounds .jsu-pager-next-container:hover,
+.jsu-pager-bounds .jsu-pager-previous-container:hover,
+.jsu-pager-bounds .jsu-pager-page-trigger:hover{background-color:#F4F4F4; border-color:#F4F4F4; cursor:pointer;}
+
+.jsu-pager-bounds {display:flex; align-items:center;}
+.jsu-pager-bounds > *,
+.jsu-pager-bounds > .jsu-pager-pagers-container *  {padding:6px 12px;}
+.jsu-pager-bounds > .jsu-pager-total-container {}
+.jsu-pager-bounds > .jsu-pager-sizes-container {border:1px solid #ddd; height:35px; cursor:pointer; background-color:#EEE;}
+.jsu-pager-bounds > .jsu-pager-sizes-container option {padding-top:15px;}
+.jsu-pager-bounds > .jsu-pager-pagers-container {}
+.jsu-pager-bounds > .jsu-pager-pagers-container {display:flex; margin:0; padding:0; border:0;}
+.jsu-pager-bounds > .jsu-pager-pagers-container * {list-style:none;}
+.jsu-pager-bounds > .jsu-pager-pagers-container .jsu-pager-page-trigger {flex:1; width:40px; padding-left:0; padding-right:0; text-align:center; margin-left:-1px;}
+.jsu-pager-bounds > .jsu-pager-pagers-container .jsu-pager-page-trigger.jsu-pager-current-index {background-color:#71B7EE; border-color:#71B7EE; color:#FFF;}
+.jsu-pager-bounds > .jsu-pager-previous-container {}
+.jsu-pager-bounds > .jsu-pager-next-container {}
+.jsu-pager-bounds > .jsu-pager-jump-container {}
+.jsu-pager-bounds > .jsu-pager-jump-container > .jsu-pager-jump-trigger {width:38px; height:35px; text-align:center; margin:0 6px; padding:3px;}
+
+.jsu-pager-bounds > .jsu-pager-pagers-container .jsu-pager-page-trigger,
+.jsu-pager-bounds > .jsu-pager-next-container {margin-left:-1px;}

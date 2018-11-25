@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>$ajax 测试</title>
+</head>
+<body>
+
+<button id="send">Send</button>
+<button id="beforeSend">beforeSend</button>
+<button id="unbeforeSend">unbeforeSend</button>
+
+<script src="statics/jquery-v3.3.1.js"></script>
+<script src="statics/jsu/util/common.js"></script>
+<script src="statics/jsu/util/Logger.js"></script>
+<script src="statics/jsu/form/Form.js"></script>
+
+<script>
+    $(function () {
+        var logger = jsu.Logger('$ajax test HTML');
+
+        $('#send').click(function () {
+            jsu.$ajax.ajax({
+                loading: true,
+                url: 'ajax.jsp?a=1',
+                success: function (res) {
+                    logger.warn(res);
+                }
+            })
+        });
+        $('#beforeSend').click(function () {
+            jsu.$ajax.beforeSend = function () {
+                logger.info('阻止发送请求', arguments);
+                return false;
+            };
+            jsu.$ajax.ajax({
+                loading: true,
+                url: 'ajax.jsp?a=1',
+                success: function (res) {
+                    logger.warn(res);
+                }
+            })
+        });
+        $('#unbeforeSend').click(function () {
+            jsu.$ajax.beforeSend = function () {
+                logger.info('发送请求', arguments);
+                return true;
+            };
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Tree - 树控件</title>
+    <link href="statics/font-awesome-4.7.0/css/font-awesome.css" rel="stylesheet">
+    <link rel="stylesheet" href="statics/jsu/tree/Tree.css">
+</head>
+<body>
+<h3>Tree - 树节点功能测试</h3>
+<hr>
+<div class="tree-container">
+    <div style="display:inline-block; width:400px; border:1px solid #DDD;">
+        <div class="tree"></div>
+    </div>
+</div>
+<br>
+<div>
+    <button id="init">Init/Re-Init</button>
+    <button id="destroy">destroy</button>
+    <button id="setData">Set Data</button>
+    <button id="getData">Get Data</button>
+    <button id="expandNotExistNode">Expand Not Exist Node</button>
+    <button id="expandExistNode">Expand Exist Node</button>
+    <button id="expandByKey">Expand By Data Key</button>
+    <button id="getExpandData">Get Expand Data</button>
+    <button id="activateNode">Activate Node</button>
+    <button id="clearActivateNodes">Clear Activate Nodes</button>
+</div>
+
+<script src="statics/jquery-v3.3.1.js"></script>
+<script src="statics/jsu/util/common.js"></script>
+<script src="statics/jsu/util/Logger.js"></script>
+<script src="statics/jsu/util/AttributeStream.js"></script>
+<script src="statics/jsu/tree/Tree.js"></script>
+
+<script>
+    $(function () {
+
+        var logger = jsu.Logger('Tree HTML Test');
+        var tree = jsu.Tree(document.querySelector('.tree-container .tree'), false, true);
+        logger.info('创建 Tree 插件对象', tree);
+
+        $('#init').click(function () {
+            logger.info('执行初始化', tree.init(), tree);
+        });
+        $('#destroy').click(function () {
+            logger.info('执行卸载', tree.destroy(), tree);
+        });
+        $('#setData').click(function () {
+            tree.data([{
+                text: '节点 - 1',
+                children: [{
+                    text: '节点 - 1-1'
+                }]
+            }, {
+                text: '节点 - 2',
+                children: [
+                    {text: '节点 - 2-1'},
+                    {text: '节点 - 2-2'},
+                    {
+                        text: '节点 - 2-3',
+                        children: [
+                            {text: '节点 - 2-3-1'},
+                            {text: '节点 - 2-3-2'},
+                            {
+                                text: '节点 - 2-3-3',
+                                children: []
+                            }
+                        ]
+                    }
+                ]
+            }]);
+        });
+        $('#getData').click(function () {
+            logger.info('获取数据', tree.data(), tree);
+        });
+        $('#expandNotExistNode').click(function () {
+            tree.expandNode({date: new Date()});
+        });
+        $('#expandExistNode').click(function () {
+            tree.expandNode(tree['[[conf]]'].dataSet.data[1]);
+        });
+        $('#expandByKey').click(function () {
+            tree.expandNode({text: '节点 - 2'}, 'text');
+        });
+        $('#getExpandData').click(function () {
+            logger.info('获取已展开的数据', tree.expandNode());
+        });
+        $('#activateNode').click(function () {
+            // logger.info('已选中节点', tree.activateNode({text: '节点 - 2'}, 'text'));      // 一级
+            // logger.info('已选中节点', tree.activateNode({text: '节点 - 2-3'}, 'text')); // 二级
+            logger.info('已选中节点', tree.activateNode({text: '节点 - 2-3-3'}, 'text'));   // 三级
+        });
+        $('#clearActivateNodes').click(function () {
+            logger.info('已选中节点', tree.activateNode([]));
+        });
+
+        tree.events({
+            loaded: function () {
+                logger.info('>>>>>>>>>>     加载完成', arguments);
+            },
+            destroyed: function () {
+                logger.info('>>>>>>>>>>     卸载完成', arguments);
+            },
+            beforeAppend: function () {
+                logger.info('>>>>>>>>>>     节点追加前', arguments);
+                // return false;
+            },
+            afterAppend: function () {
+                logger.info('>>>>>>>>>>     节点追加后', arguments);
+            },
+            updated: function () {
+                logger.info('>>>>>>>>>>     更新完成,', arguments);
+            },
+            beforeExpand: function () {
+                logger.info('>>>>>>>>>>     子节点展开前', arguments);
+                // return false;
+            },
+            afterExpand: function () {
+                logger.info('>>>>>>>>>>     子节点展开后', arguments);
+            },
+            beforeClose: function () {
+                logger.info('>>>>>>>>>>     子节点关闭前', arguments);
+            },
+            afterClose: function () {
+                logger.info('>>>>>>>>>>     子节点关闭后', arguments);
+            }
+        })
+
+    });
+</script>
+</body>
+</html>

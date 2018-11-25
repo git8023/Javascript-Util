@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>分页条测试</title>
+    <link rel="stylesheet" href="statics/font-awesome-4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="statics/jsu/grid/Pager.css">
+</head>
+<body>
+<h3>布局</h3>
+<hr>
+<div class="layout">
+    <h4>上一页 | 页码 | 下一页</h4>
+    <div class="pager-1 test"
+         style="color:#F00"
+         data-reload='true'
+         data-sizes='5,10,20,50,100'
+         data-count='7'
+         data-layout="prev, pager, next"></div>
+    <h4>总条数 | 上一页 | 页码 | 下一页</h4>
+    <div class="pager-2 test"
+         style="color:#F00"
+         data-reload='true'
+         data-sizes='5,10,20,50,100'
+         data-count='7'
+         data-layout="total, prev, pager, next"></div>
+    <h4>页大小 | 上一页 | 页码 | 下一页</h4>
+    <div class="pager-2 test"
+         style="color:#F00"
+         data-reload='true'
+         data-sizes='5,10,20,50,100'
+         data-count='7'
+         data-layout="sizes, prev, pager, next"></div>
+    <h4>页大小 | 上一页 | 页码 | 下一页 | 跳转</h4>
+    <div class="pager-2 test"
+         style="color:#F00"
+         data-reload='true'
+         data-sizes='5,10,20,50,100'
+         data-count='7'
+         data-layout="sizes, prev, pager, next, jumper"></div>
+</div>
+<br>
+<br>
+<h3>完整功能</h3>
+<hr>
+<div class="container" style="display:inline-block;">
+    <h4>总条数 | 页大小 | 上一页 | 页码 | 下一页 | 跳转</h4>
+    <div class="pager"
+         style="color:#F00"
+         data-url='Page.jsp'
+         data-reload='true'
+         data-sizes='5,10,20,50,100'
+         data-count='7'
+         data-layout="total, sizes, prev, pager, next, jumper"></div>
+</div>
+<div>
+    <button id="init">Init/Re-Init</button>
+    <button id="destroy">Destroy</button>
+    <button id="setData">Set Data</button>
+    <button id="getIndex">Get Index</button>
+    <button id="setIndex">Set Index</button>
+</div>
+
+<script src="statics/jquery-v3.3.1.js"></script>
+<script src="statics/jsu/util/common.js"></script>
+<script src="statics/jsu/util/Logger.js"></script>
+<script src="statics/jsu/grid/Pager.js"></script>
+<script>
+    $(function () {
+        $('.layout .test').each(function () {
+            jsu.Pager(this, true, true);
+        });
+    })
+</script>
+<script>
+    $(function () {
+        var logger = jsu.Logger('Pager HTML Test');
+        var pager = jsu.Pager($('.pager'), false, true);
+
+        $('#init').click(function () {
+            pager.init();
+            logger.info('初始化完成', pager);
+        });
+        $('#destroy').click(function () {
+            pager.destroy();
+            logger.info('卸载完成', pager);
+        });
+        $('#setData').click(function () {
+            pager.data({
+                total: parseInt(Math.random() * 1000),   // 总条数
+                index: 10        // 每页条数
+            });
+            logger.info('设置数据完成', pager);
+        });
+        $('#getIndex').click(function () {
+            logger.info('获取当前页码', pager.index());
+        });
+        $('#setIndex').click(function () {
+            logger.info('设置当前页码', pager.index(8));
+        });
+
+        pager.events({
+            loaded: function () {
+                logger.info('>>> 加载完成', arguments);
+            },
+            before: function (index) {
+                logger.info('>>> 跳转到指定页之前', arguments);
+                return index % 4;
+            },
+            formatter: function (resp) {
+                logger.info('>>> 数据格式化', arguments);
+                logger.info('>>>>>>>', arguments);
+                if (true === resp['flag'])
+                    return resp.data;
+
+                logger.warn('服务器处理失败', resp);
+                return {data: [], total: 0, index: 1};
+            },
+            after: function () {
+                logger.info('>>> 跳转到指定页之后', arguments);
+            },
+            destroyed: function () {
+                logger.info('>>> 卸载之后', arguments);
+            }
+        });
+        pager.init();
+    });
+</script>
+</body>
+</html>

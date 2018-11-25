@@ -1,0 +1,41 @@
+@charset "UTF-8";
+
+.jsu-tree-bounds,
+.jsu-tree-bounds * {-webkit-box-sizing:border-box; -moz-box-sizing:border-box; box-sizing:border-box;}
+
+.jsu-tree-bounds .jsu-tree .jsu-tree-node .jsu-tree-title > *,
+.jsu-tree-bounds .jsu-tree .jsu-tree-node .jsu-tree-title > .jsu-tree-other > .jsu-tree-other-container > * {padding:0 5px;}
+
+.jsu-tree-bounds .jsu-tree-hide {display:none;}
+.jsu-tree-bounds .jsu-tree-loading {display:none;}
+.jsu-tree-bounds .jsu-tree-node.jsu-tree-children-loading > .jsu-tree-title > .jsu-tree-loading {display:block;}
+
+.jsu-tree-bounds .jsu-tree {}
+.jsu-tree-bounds .jsu-tree .jsu-tree-node {}
+.jsu-tree-bounds .jsu-tree .jsu-tree-node .jsu-tree-title {padding:5px 0; cursor:default; width:100%; display:flex; align-items:center;}
+.jsu-tree-bounds .jsu-tree .jsu-tree-node .jsu-tree-title > .jsu-tree-node-editing {height:100%; padding-bottom:1px; padding-top:1px; background-color:transparent; border:0; color:#F00; outline:none; font-size:inherit;}
+.jsu-tree-bounds .jsu-tree .jsu-tree-node .jsu-tree-title > .jsu-tree-other {flex:1; text-align:right;}
+.jsu-tree-bounds .jsu-tree .jsu-tree-node .jsu-tree-title > .jsu-tree-other > .jsu-tree-other-container {display:flex; align-items:center; float:right; width:0; overflow:hidden;}
+.jsu-tree-bounds .jsu-tree .jsu-tree-node .jsu-tree-title:hover {background-color:#F5F5F5;}
+.jsu-tree-bounds .jsu-tree .jsu-tree-node .jsu-tree-title > .jsu-tree-other > .jsu-tree-other-container > * {cursor:pointer; opacity:.5;}
+.jsu-tree-bounds .jsu-tree .jsu-tree-node > .jsu-tree-title > .jsu-tree-selection-activate {display:none;}
+
+.jsu-tree-bounds .jsu-tree .jsu-tree-node > .jsu-tree-title > .jsu-tree-selection-default {display:block;}
+.jsu-tree-bounds .jsu-tree .jsu-tree-node.jsu-tree-node-selected > .jsu-tree-title > .jsu-tree-selection-activate {display:block;}
+.jsu-tree-bounds .jsu-tree .jsu-tree-node.jsu-tree-node-selected > .jsu-tree-title > .jsu-tree-selection-default {display:none;}
+.jsu-tree-bounds .jsu-tree .jsu-tree-temporary-root {height:0; overflow:hidden;}
+
+.jsu-tree-bounds .jsu-tree .jsu-tree-temporary-root .jsu-tree-children {height:auto;}
+.jsu-tree-bounds .jsu-tree .jsu-tree-children {margin-left:2.5rem; overflow-y:hidden;}
+.jsu-tree-bounds .jsu-tree .jsu-tree-children .jsu-tree-children{}
+
+.jsu-tree-bounds .jsu-tree .jsu-tree-node .jsu-tree-title > .jsu-tree-other > .jsu-tree-other-container > *:hover {opacity:1;}
+.jsu-tree-bounds .jsu-tree .jsu-tree-node .jsu-tree-title:hover > .jsu-tree-other > .jsu-tree-other-container {width:auto;}
+
+
+
+
+
+
+
+

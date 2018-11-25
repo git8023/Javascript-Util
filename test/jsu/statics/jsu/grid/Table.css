@@ -1,0 +1,71 @@
+@charset "UTF-8";
+
+
+.jsu-bounds {position:relative; border:1px solid #EBEEF5;}
+.jsu-bounds.jsu-column-width-editing {cursor:col-resize; user-select:none;}
+.jsu-bounds > .jsu-column-modifier {position:absolute; top:0; left:0; width:3px; cursor:col-resize; background-color:#EBEEF5;}
+.jsu-bounds > .jsu-column-modifier.jsu-trigger-action {height:100%!important; border:0; border-left:1px dashed #AAA; background-color:transparent;}
+
+
+.jsu-bounds .jsu-table-header-cell,
+.jsu-bounds .jsu-table-cell {padding:15px 12px; border:1px solid #EBEEF5;}
+.jsu-bounds .jsu-table-header-cell {color:#909399; font-weight:500;}
+.jsu-bounds .jsu-table-cell {font-size:14px; color:#606266;}
+
+
+.jsu-bounds > .jsu-table {border-collapse:collapse; border-spacing:0; width:100%;}
+.jsu-bounds > .jsu-table > .jsu-table-header {}
+.jsu-bounds > .jsu-table > .jsu-table-header > .jsu-table-header-row {}
+.jsu-bounds > .jsu-table > .jsu-table-header > .jsu-table-header-row > .jsu-table-header-cell {}
+.jsu-bounds > .jsu-table > .jsu-table-header > .jsu-table-header-row > .jsu-table-header-cell.jsu-swapper-action {background-color:#EBEEF5;}
+
+
+.jsu-bounds > .jsu-table > .jsu-table-body {}
+.jsu-bounds > .jsu-table > .jsu-table-body > .jsu-table-row {background:#FFF;
+    -webkit-transition: background-color .3s;
+    -moz-transition: background-color .3s;
+    -ms-transition: background-color .3s;
+    -o-transition: background-color .3s;
+    transition: background-color .3s;
+}
+.jsu-bounds > .jsu-table > .jsu-table-body > .jsu-table-row:hover {background:#F5F5F5;}
+.jsu-bounds > .jsu-table > .jsu-table-body > .jsu-table-row > .jsu-table-cell {}
+.jsu-bounds > .jsu-table > .jsu-table-body > .jsu-table-row > .jsu-table-cell > .jsu-selection {}
+.jsu-bounds > .jsu-table > .jsu-table-body > .jsu-table-row > .jsu-table-cell > .jsu-selection-radio {}
+.jsu-bounds > .jsu-table > .jsu-table-body > .jsu-table-row > .jsu-table-cell > .jsu-selection-checkbox {}
+.jsu-bounds > .jsu-table > .jsu-table-body > .jsu-table-row > .jsu-table-cell > .jsu-expander {padding:5px 10px; cursor:pointer;
+    -webkit-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -ms-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    transform: rotate(0deg);
+    -webkit-transition: transform .2s;
+    -moz-transition: transform .2s;
+    -ms-transition: transform .2s;
+    -o-transition: transform .2s;
+    transition: transform .2s;
+}
+/*.jsu-bounds > .jsu-table > .jsu-table-body > .jsu-table-row > .jsu-table-cell > .jsu-expander:before {content:"\f105";}*/
+
+.jsu-bounds > .jsu-table > .jsu-table-body > .jsu-table-row > .jsu-table-cell > .jsu-expander.jsu-expander-opened {
+    -webkit-transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+    -o-transform: rotate(90deg);
+    transform: rotate(90deg);
+}
+.jsu-bounds > .jsu-table > .jsu-table-body > .jsu-table-row > .jsu-table-cell > .jsu-expander.jsu-expander-opened:before {
+    /*content:"\f107";*/
+}
+
+
+.jsu-bounds > .jsu-table > .jsu-table-body > .jsu-table-row > .jsu-table-cell > .jsu-writable {}
+.jsu-bounds > .jsu-table > .jsu-table-body > .jsu-table-row > .jsu-table-cell > .jsu-writable > .jsu-writable {}
+
+
+.jsu-bounds > .jsu-table > .jsu-table-body > .jsu-expand-container-row {}
+.jsu-bounds > .jsu-table > .jsu-table-body > .jsu-expand-container-row > .jsu-expand-container {}
+
+
+.jsu-bounds > .jsu-table > .jsu-table-body > .jsu-table-empty-row {}
+.jsu-bounds > .jsu-table > .jsu-table-body > .jsu-table-empty-row > .jsu-empty-td {}
