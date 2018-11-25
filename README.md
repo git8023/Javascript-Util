@@ -131,6 +131,28 @@ Javascript Util是在jQuery基础上提供部分插件, 浏览器内核以Chrome
    });
    ```
 ## 分页条
+分页条`jsu.Pager`用于请求可分页的数据列表
+#### HTML控件配置  
+  ```html
+  <!--data-url: 分页数据获取-->
+  <!--data-reload: 点击相同页码是否发起请求-->
+  <!--data-sizes: 页大小可选项, 默认第一项-->
+  <!--data-count: 页码数量, 推荐为奇数-->
+  <!-- 
+      data-layout: 布局组件可自由配置, 与顺序无关
+          total: 总页数组件
+          sizes: 可选页码组件
+          prev: 上一页组件
+          next: 下一页组件
+          jumper: 自由跳转组件
+  -->
+  <div class="pager"
+       data-url='Page.jsp'
+       data-reload='true'
+       data-sizes='5,10,20,50,100'
+       data-count='7'
+       data-layout="total, sizes, prev, pager, next, jumper"></div>
+  ```
 #### 获取实例
   ```javascript
   var 
@@ -184,29 +206,75 @@ Javascript Util是在jQuery基础上提供部分插件, 浏览器内核以Chrome
       }
   });
   ```
-#### HTML控件配置  
-  ```html
-  <!--data-url: 分页数据获取-->
-  <!--data-reload: 点击相同页码是否发起请求-->
-  <!--data-sizes: 页大小可选项, 默认第一项-->
-  <!--data-count: 页码数量, 推荐为奇数-->
-  <!-- 
-      data-layout: 布局组件可自由配置, 与顺序无关
-          total: 总页数组件
-          sizes: 可选页码组件
-          prev: 上一页组件
-          next: 下一页组件
-          jumper: 自由跳转组件
-  -->
-  <div class="pager"
-       data-url='Page.jsp'
-       data-reload='true'
-       data-sizes='5,10,20,50,100'
-       data-count='7'
-       data-layout="total, sizes, prev, pager, next, jumper"></div>
-  ```
 ## 表格
 表格插件`jsu.Table`支持二维规整数据展示, 支持**列宽调整**、**列顺序调整**、**表头固定**、**左/右列固定**、**加载分页条**等操作
+#### HTML控件配置
+```html
+<table class="table"
+       data-pagination
+       data-url='Page.jsp'
+       data-reload='true'
+       data-sizes='10,20,50,100'
+       data-count='7'
+       data-layout="total, sizes, prev, pager, next, jumper">
+    <thead>
+    <tr>
+        <th data-type="index" data-text="索引"></th>
+        <th data-type="expand" data-text="展开">
+            <!-- 展开模板置于 [data-expand] 容器内部 -->
+            <div data-expand>
+                <table class="table" style="color:#AAA; display:none;">
+                    <thead>
+                    <tr>
+                        <th data-type="selection" data-selection="radio"></th>
+                        <th data-type="text" data-prop="name">文本</th>
+                        <th data-type="html" data-prop="note" data-writable>编辑简介</th>
+                        <th data-type="date" data-prop="date" data-date-format="yyyy-MM-dd hh:mm:ss:S"data-writable>编辑注册时间</th>
+                        <th data-type="enum" data-prop="gender" data-writable data-enum='{"MALE":"男","FEMALE":"女"}' data-text="性别"></th>
+                        <th data-type="enum" data-prop="gender" data-writable data-enum='{"MALE":"男","FEMALE":"女"}' data-text="编辑性别">
+                            <div data-writable>
+                                <label>
+                                    <select name>
+                                        <option value="MALE">男</option>
+                                        <option value="FEMALE">女</option>
+                                    </select>
+                                </label>
+                            </div>
+                        </th>
+                    </tr>
+                    </thead>
+                </table>
+            </div>
+        </th>
+        <th data-type="selection" data-selection="checkbox" data-text="全选"></th>
+        <th data-type="text" data-prop="name">文本</th>
+        <th data-type="enum" data-prop="gender" data-enum='{"MALE":"男","FEMALE":"女"}'>枚举</th>
+        <th data-type="date" data-prop="date" data-date-format="yyyy-MM-dd hh:mm:ss:S" data-text="注册时间"></th>
+        <th data-type="html" data-prop="note">简介</th>
+        <th data-type="html" data-prop="note" data-writable>编辑简介</th>
+        <th data-type="date" data-prop="date" data-date-format="yyyy-MM-dd hh:mm:ss:S" data-writable>编辑注册时间</th>
+        <th data-type="enum" data-prop="gender" data-writable data-enum='{"MALE":"男","FEMALE":"女"}' data-text="编辑性别">
+            <div data-writable>
+                <label>
+                    <select name>
+                        <option value="MALE">男</option>
+                        <option value="FEMALE">女</option>
+                    </select>
+                </label>
+            </div>
+        </th>
+        <th data-type="template" data-text="操作">
+            <div data-template>
+                <a href="javascript:" class="row-data">Get Data</a>
+                <button class="update-name">Update Name</button>
+            </div>
+        </th>
+    </tr>
+    </thead>
+</table>
+```
+
+
 #### 获取实例
   ```javascript
   var 
@@ -229,6 +297,7 @@ Javascript Util是在jQuery基础上提供部分插件, 浏览器内核以Chrome
 #### Table.clearActions()  
 清空选中的数据行
 #### Table.events(tableEvents)  
+注册事件
   ```javascript
   table.events({
      cellReady: function () {
