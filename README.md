@@ -271,4 +271,4 @@ Javascript Util是在jQuery基础上提供部分插件, 浏览器内核以Chrome
     ```
 ### Table.paginationEvents(pagerEs)  
 注册分页条事件, 需要**pagination**配置.  
-参考: [Pager.events](#Pager.events)
+参考: [Pager.events](#pagereventspagerevents)
