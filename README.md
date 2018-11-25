@@ -255,8 +255,12 @@ Javascript Util是在jQuery基础上提供部分插件, 浏览器内核以Chrome
 
 | 属性名 | 类型 | 可选值 | 说明 |
 | :------ | :---- | :------ | :---- |
-data-pagination | -/- | -/- | 启用分页条配置 | 
- 
+| data-pagination | -/- | -/- | 启用分页条配置 | 
+| data-url | string | any | 分页数据请求地址 | 
+| data-reload | boolean | true/false | 激活相同页码是否重新加载数据 | 
+| data-sizes | number | 正整数 | 多个页码值使用英文逗号分隔(,) |
+| data-count | number | 正整数 | 页码显示数量, 推荐使用奇数(如5,7等) |
+| data-layout | string | total, sizes, prev, pager, next, jumper | 页脚布局可选一个或多个 |
 
 #### 获取实例
   ```javascript
