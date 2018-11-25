@@ -9,7 +9,7 @@ Javascript Util是在jQuery基础上提供部分插件, 浏览器内核以Chrome
 
 ## 表单控件
 通过`jsu.Form`实例对象获取/设置表单数据
-### 获取实例
+#### 获取实例
   ```javascript
   var 
       // 不限于<form />控件, 子控件包含有效的表单控件即可(input/select/textarea...)
@@ -20,7 +20,7 @@ Javascript Util是在jQuery基础上提供部分插件, 浏览器内核以Chrome
       dev = true; 
   var form = new jsu.Form($form, mvvm, dev);
   ```
-### Form.data(data?)  
+#### Form.data(data?)  
 指定参数时设置数据, 无参数时获取数据.
   ```javascript
   // 获取数据
@@ -35,13 +35,13 @@ Javascript Util是在jQuery基础上提供部分插件, 浏览器内核以Chrome
   // 自动忽略表单控件不存在的属性([name])
   form.data(formData);
   ```
-### Form.clear()  
+#### Form.clear()  
 清空表单, 删除所有表单控件的值
-### Form.restore()  
+#### Form.restore()  
 初始化: 表单控件的值恢复到获取`Form`对象时的状态
-### Form.validation(es)  
+#### Form.validation(es)  
 表单校验  
-  ### 校验事件(es):
+  #### 校验事件(es):
   ```javascript
   es = {
       success: function(res){console.log('校验成功')}, 
@@ -49,7 +49,7 @@ Javascript Util是在jQuery基础上提供部分插件, 浏览器内核以Chrome
       completed: function() {console.log('校验完成')} 
   }
   ```
-  ### 校验配置
+  #### 校验配置
   ```html
   <!--正则表达式校验-->
   <input data-regexp="/^\S{6,18}$/" data-regexp-error="密码长度6~18位" >
@@ -71,7 +71,7 @@ Javascript Util是在jQuery基础上提供部分插件, 浏览器内核以Chrome
   ```
 ## 树控件  
 通过`jsu.Tree`展示/操作具有**树结构特性**的数据. 同时支持单根和多根数据结构.
-### 获取实例
+#### 获取实例
   ```javascript
   var 
       // 树容器
@@ -82,20 +82,20 @@ Javascript Util是在jQuery基础上提供部分插件, 浏览器内核以Chrome
       dev = true; 
   var tree = new jsu.Tree($tree, autoInit, dev);
   ``` 
-### Tree.init()  
+#### Tree.init()  
 初始化树控件   
-### Tree.destroy()  
+#### Tree.destroy()  
 卸载树控件
-### Tree.data(data?)  
+#### Tree.data(data?)  
 指定data参数时设置数据, 无参数时获取数据
-### Tree.expandNode(nodes?, dataKey?)  
+#### Tree.expandNode(nodes?, dataKey?)  
 参数**nodes**有值时指定展开节点, 如果没有值则获取已展开的节点;   
 参数**dataKey**用于指定节点数据唯一值(Primary Key)的属性名;
-### Tree.activateNode(nodes?, dataKey?)  
+#### Tree.activateNode(nodes?, dataKey?)  
 参数**nodes**有值时指定选中的节点, 如果没有值则获取展开的节点; 
 如果节点数据为子节点控件自动展开父节点; 如果**nodes**为空数组时, 清空所有选中的节点;  
 参数**dataKey**用于指定节点数据唯一值(Primary Key)的属性名;  
-### Tree.events(es)  
+#### Tree.events(es)  
 注册事件:
    ```javascript
    tree.events({
@@ -131,7 +131,7 @@ Javascript Util是在jQuery基础上提供部分插件, 浏览器内核以Chrome
    });
    ```
 ## 分页条
-### 获取实例
+#### 获取实例
   ```javascript
   var 
       // 分页条容器
@@ -142,11 +142,11 @@ Javascript Util是在jQuery基础上提供部分插件, 浏览器内核以Chrome
       dev = true;
   var pager = new jsu.Pager($pager, autoInit, dev);
   ```
-### Pager.init()  
+#### Pager.init()  
 手动初始化
-### Pager.destroy()  
+#### Pager.destroy()  
 销毁分页条控件
-### Pager.data(pagerData)  
+#### Pager.data(pagerData)  
 设置分页条数据
   ```javascript
   pagerData = {
@@ -156,9 +156,9 @@ Javascript Util是在jQuery基础上提供部分插件, 浏览器内核以Chrome
       index: 1
   }
   ```
-### Pager.index(pageIndex?)  
+#### Pager.index(pageIndex?)  
 获取/设置当前页码
-### Pager.events(pagerEvents)  
+#### Pager.events(pagerEvents)  
   注册事件:
   ```javascript
   pager.events({
@@ -184,7 +184,7 @@ Javascript Util是在jQuery基础上提供部分插件, 浏览器内核以Chrome
       }
   });
   ```
-### HTML控件配置  
+#### HTML控件配置  
   ```html
   <!--data-url: 分页数据获取-->
   <!--data-reload: 点击相同页码是否发起请求-->
@@ -207,7 +207,7 @@ Javascript Util是在jQuery基础上提供部分插件, 浏览器内核以Chrome
   ```
 ## 表格
 表格插件`jsu.Table`支持二维规整数据展示, 支持**列宽调整**、**列顺序调整**、**表头固定**、**左/右列固定**、**加载分页条**等操作
-### 获取实例
+#### 获取实例
   ```javascript
   var 
       // 表格容器
@@ -218,17 +218,17 @@ Javascript Util是在jQuery基础上提供部分插件, 浏览器内核以Chrome
       dev = true;
   var table = new jsu.Table($table, autoInit, dev);
   ```
-### Table.init()  
+#### Table.init()  
 手动初始化
-### Table.destroy()  
+#### Table.destroy()  
 销毁并还原控件
-### Table.data(data?)  
+#### Table.data(data?)  
 获取/设置表格数据
-### Table.actionRows(rows?)  
+#### Table.actionRows(rows?)  
 获取/设置选中的数据, 数据必须从**Table.data()**中获取.
-### Table.clearActions()  
+#### Table.clearActions()  
 清空选中的数据行
-### Table.events(tableEvents)  
+#### Table.events(tableEvents)  
   ```javascript
   table.events({
      cellReady: function () {
@@ -268,6 +268,6 @@ Javascript Util是在jQuery基础上提供部分插件, 浏览器内核以Chrome
      }
   });
   ```
-### Table.paginationEvents(pagerEs)  
+#### Table.paginationEvents(pagerEs)  
 注册分页条事件, 需要**pagination**配置.  
 参考: [Pager.events](#pagereventspagerevents)
