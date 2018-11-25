@@ -2,7 +2,7 @@
 Javascript Util是在jQuery基础上提供部分插件, 浏览器内核以Chrome Google为主  
 插件入口: `window.jsu`
 
-- Form: 表单控件
+- [Form: 表单控件](#表单控件)
 - Tree: 树控件
 
 ## 表单控件
