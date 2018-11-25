@@ -6,7 +6,7 @@
  *     > 本地校验: 正则表达式、HTML数据类型
  *     > 远程校验: 同步校验
  */
-(function (c) {
+;(function (c) {
     'use strict';
     c.Form = Form;
     Form.logger = c.Logger ? c.Logger('Form') : null;
@@ -92,6 +92,14 @@
             item.el.val(item.defaultValue);
             item.el.prop('checked', item.defaultChecked);
         });
+
+        // 如果开启mvvm模式, 通过强制获取数据来刷新 conf.data 的值
+        if (conf.mvvm) {
+            conf.mvvm = false;
+            Object.assign(conf.data = {}, getData(this));
+            conf.mvvm = true;
+        }
+
         Form.logger && Form.logger.info('重置表单完成!');
         return ret;
     };
@@ -350,12 +358,14 @@
         var conf = getConf(self);
         conf.data = data;
         parseConf(conf);
+        var effectiveProps = [];
         c.common.each(conf.items, function (item) {
             var
                 el = item.el,
                 name = el.attr('name'),
                 val = data[name],
                 tagName = el[0].tagName.toLowerCase();
+            effectiveProps.push(name);
             switch (tagName) {
                 case 'input':
                     // input:radio, input:checkbox 特殊处理, 其他类型委托给jQuery
@@ -370,6 +380,15 @@
                     break;
             }
         });
+
+        // 删除无效属性
+        jsu.arrays.unique(effectiveProps);
+        var invalidKeys = jsu.objects.keys(data);
+        jsu.arrays.remove(invalidKeys, effectiveProps);
+        jsu.common.each(invalidKeys, function (invalidKey) {
+            delete conf.data[invalidKey];
+        });
+
     }
 
     /**
@@ -418,7 +437,7 @@
                     } else if (/^checkbox$/i.test(type)) {
                         if (el.is(':checked'))
                             (data[name] = oldVal || []).push(item.defaultValue);
-                        data[name] = c.arrays.unique(data[name]);
+                        data[name] = c.arrays.unique(data[name] || []);
                         break;
                     } else if (/file/i.test(type)) {
                         break;
@@ -496,7 +515,8 @@
                         remote: $this.attr('data-remote-valid')
                     }
                 };
-            if (mvvm) activeMvvm(itemConf, conf.data);
+            if (mvvm)
+                activeMvvm(itemConf, conf.data);
             conf.items.push(itemConf);
         });
     }
@@ -590,6 +610,10 @@
                 }
             };
             Object.defineProperty(data, name, descriptor);
+
+            // TODO Array.length改变, Array.push, Array.shift...
+            // TODO Object 添加新属性
+
         })(item.el, item.name, data);
     }
 
