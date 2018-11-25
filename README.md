@@ -270,7 +270,7 @@ Javascript Util是在jQuery基础上提供部分插件, 浏览器内核以Chrome
 | data-text | string | any | 表头名称, 如果是简单类型`data-type`可使用标签体代替 |
 | data-selection | string | radio/checkbox | 如果`data-type`指定为`selection`时, 由当前配置指定选择类型;<br>`radio`:单选数据行 <br>`checkbox`:多选数据行 |
 | data-prop | string | `ognl`表达式 | 单元格数据属性名, 如: `bar`、`foo.bar` |
-| data-enum | json | json-string | 如果`data-type`指定为`enum`时, 由当前配置指定可匹配范围; JSON对象字符串表现形式, 参考JSON.stringify() |
+| data-enum | json | json-string | 如果`data-type`指定为`enum`时, 由当前配置指定可匹配范围; <br>JSON对象字符串表现形式, 参考JSON.stringify() |
 | data-date-format | string | y,M,d,h,m,s,S |  如果`data-type`指定为`date`时, 由当前配置格式化日期对象(时间戳) <br>`y`:年, yyyy/yy <br>`M`:月, mm <br>`d`:日,dd <br>`h`:时, hh <br>`m`:分, mm <br>`s`:秒: ss <br>`S`:毫秒值, S |
 | data-writable | -/- | -/- | 可编辑单元格标记, 可与第一个子控件`[data-writable]`配合使用 |
 
