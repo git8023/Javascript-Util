@@ -229,44 +229,43 @@ Javascript Util是在jQuery基础上提供部分插件, 浏览器内核以Chrome
 ### Table.clearActions()  
 清空选中的数据行
 ### Table.events(tableEvents)  
-    注册表格事件
     ```javascript
     table.events({
-        cellReady: function () {
-            logger.info('cellReady', arguments);
-        },
-        rowReady: function () {
-            logger.info('rowReady', arguments);
-        },
-        updated: function () {
-            logger.info('updated', arguments);
-        },
-        mouseEnter: function () {
-            logger.info('mouseEnter', arguments);
-        },
-        mouseLeave: function () {
-            logger.info('mouseLeave', arguments);
-        },
-        click: function () {
-            logger.info('click', arguments);
-        },
-        action: function () {
-            logger.log('table action', arguments);
-        },
-        expandOpen: function (row, $container) {
-            logger.info('expandOpen', arguments);
-            // return false;
-        },
-        expandOpened: function (row, $container) {
-            logger.info('expandOpened', arguments);
-        },
-        expandClose: function () {
-            logger.info('expandClose', arguments);
-            // return false;
-        },
-        expandClosed: function () {
-            logger.info('expandClosed', arguments);
-        }
+       cellReady: function () {
+           logger.info('cellReady', arguments);
+       },
+       rowReady: function () {
+           logger.info('rowReady', arguments);
+       },
+       updated: function () {
+           logger.info('updated', arguments);
+       },
+       mouseEnter: function () {
+           logger.info('mouseEnter', arguments);
+       },
+       mouseLeave: function () {
+           logger.info('mouseLeave', arguments);
+       },
+       click: function () {
+           logger.info('click', arguments);
+       },
+       action: function () {
+           logger.log('table action', arguments);
+       },
+       expandOpen: function (row, $container) {
+           logger.info('expandOpen', arguments);
+           // return false;
+       },
+       expandOpened: function (row, $container) {
+           logger.info('expandOpened', arguments);
+       },
+       expandClose: function () {
+           logger.info('expandClose', arguments);
+           // return false;
+       },
+       expandClosed: function () {
+           logger.info('expandClosed', arguments);
+       }
     });
     ```
 ### Table.paginationEvents(pagerEs)  
