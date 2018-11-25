@@ -222,29 +222,7 @@ Javascript Util是在jQuery基础上提供部分插件, 浏览器内核以Chrome
         <th data-type="index" data-text="索引"></th>
         <th data-type="expand" data-text="展开">
             <!-- 展开模板置于 [data-expand] 容器内部 -->
-            <div data-expand>
-                <table class="table" style="color:#AAA; display:none;">
-                    <thead>
-                    <tr>
-                        <th data-type="selection" data-selection="radio"></th>
-                        <th data-type="text" data-prop="name">文本</th>
-                        <th data-type="html" data-prop="note" data-writable>编辑简介</th>
-                        <th data-type="date" data-prop="date" data-date-format="yyyy-MM-dd hh:mm:ss:S"data-writable>编辑注册时间</th>
-                        <th data-type="enum" data-prop="gender" data-writable data-enum='{"MALE":"男","FEMALE":"女"}' data-text="性别"></th>
-                        <th data-type="enum" data-prop="gender" data-writable data-enum='{"MALE":"男","FEMALE":"女"}' data-text="编辑性别">
-                            <div data-writable>
-                                <label>
-                                    <select name>
-                                        <option value="MALE">男</option>
-                                        <option value="FEMALE">女</option>
-                                    </select>
-                                </label>
-                            </div>
-                        </th>
-                    </tr>
-                    </thead>
-                </table>
-            </div>
+            <div data-expand>展开模板, 可嵌套任何内容</div>
         </th>
         <th data-type="selection" data-selection="checkbox" data-text="全选"></th>
         <th data-type="text" data-prop="name">文本</th>
