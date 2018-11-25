@@ -161,28 +161,28 @@ var pager = new jsu.Pager($pager, autoInit, dev);
 - Pager.index(pageIndex?)  
 获取/设置当前页码
 - Pager.events(pagerEvents)  
-注册事件:
-```javascript
-pager.events({
-    loaded: function () {
-        logger.info('>>> 加载完成', arguments);
-    },
-    before: function (index) {
-        logger.info('>>> 跳转到指定页之前', arguments);
-        return index;
-    },
-    formatter: function (resp) {
-        logger.info('>>> 数据格式化', arguments);
-        if (true === resp['flag'])
-            return resp.data;
-        logger.warn('服务器处理失败', resp);
-        return {data: [], total: 0, index: 1};
-    },
-    after: function (data, conf) {
-        logger.info('>>> 跳转到指定页之后', arguments);
-    },
-    destroyed: function () {
-        logger.info('>>> 卸载之后', arguments);
-    }
-});
-```
+    注册事件:
+    ```javascript
+    pager.events({
+        loaded: function () {
+            logger.info('>>> 加载完成', arguments);
+        },
+        before: function (index) {
+            logger.info('>>> 跳转到指定页之前', arguments);
+            return index;
+        },
+        formatter: function (resp) {
+            logger.info('>>> 数据格式化', arguments);
+            if (true === resp['flag'])
+                return resp.data;
+            logger.warn('服务器处理失败', resp);
+            return {data: [], total: 0, index: 1};
+        },
+        after: function (data, conf) {
+            logger.info('>>> 跳转到指定页之后', arguments);
+        },
+        destroyed: function () {
+            logger.info('>>> 卸载之后', arguments);
+        }
+    });
+    ```
