@@ -251,7 +251,12 @@ Javascript Util是在jQuery基础上提供部分插件, 浏览器内核以Chrome
     </thead>
 </table>
 ```
+- table属性说明    
 
+| 属性名 | 类型 | 可选值 | 说明 |
+| :------ | :---- | :------ | :---- |
+data-pagination | -/- | -/- | 启用分页条配置 | 
+ 
 
 #### 获取实例
   ```javascript
