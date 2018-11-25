@@ -4,6 +4,7 @@ Javascript Util是在jQuery基础上提供部分插件, 浏览器内核以Chrome
 
 - [Form: 表单控件](#表单控件)
 - [Tree: 树控件](#树控件)
+- [Pager: 分页条](#分页条)
 
 ## 表单控件
 通过`jsu.Form`实例对象获取/设置表单数据
@@ -127,6 +128,61 @@ tree.events({
     },
     afterClose: function () {
         logger.info('>>>>>>>>>>     子节点关闭后', arguments);
+    }
+});
+```
+## 表格
+## 分页条
+- 获取实例
+```javascript
+var 
+    // 分页条容器
+    $pager = $('.pager'),
+    // 自动初始化
+    autoInit = true,
+    // 调试日志
+    dev = true;
+var pager = new jsu.Pager($pager, autoInit, dev);
+```
+- Pager.init()  
+手动初始化
+- Pager.destroy()  
+销毁分页条控件
+- Pager.data(pagerData)  
+设置分页条数据
+    ```javascript
+    pagerData = {
+        // 总条数
+        total: 20,
+        // 当前页码
+        index: 1
+    }
+    ```
+- Pager.index(pageIndex?)  
+获取/设置当前页码
+- Pager.events(pagerEvents)  
+注册事件:
+```javascript
+pager.events({
+    loaded: function () {
+        logger.info('>>> 加载完成', arguments);
+    },
+    before: function (index) {
+        logger.info('>>> 跳转到指定页之前', arguments);
+        return index;
+    },
+    formatter: function (resp) {
+        logger.info('>>> 数据格式化', arguments);
+        if (true === resp['flag'])
+            return resp.data;
+        logger.warn('服务器处理失败', resp);
+        return {data: [], total: 0, index: 1};
+    },
+    after: function (data, conf) {
+        logger.info('>>> 跳转到指定页之后', arguments);
+    },
+    destroyed: function () {
+        logger.info('>>> 卸载之后', arguments);
     }
 });
 ```
