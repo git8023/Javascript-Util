@@ -7,6 +7,7 @@
     <link href="statics/font-awesome-4.7.0/css/font-awesome.css" rel="stylesheet">
     <link rel="stylesheet" href="statics/jsu/grid/Table.css">
     <style>
+        body {padding:0; margin:0;}
         .grid table {
             width: 100%;
             border-collapse: collapse;
@@ -29,7 +30,7 @@
 <body>
 <h1>测试单表格基础功能</h1>
 <div class="grid grid_2">
-    <table class="table" style="color:#AAA">
+    <table class="table" style="color:#AAA" data-max-height="400">
         <thead>
         <tr>
             <th data-type="index" data-text></th>
@@ -41,9 +42,13 @@
                             <th data-type="selection" data-selection="radio"></th>
                             <th data-type="text" data-prop="name">文本</th>
                             <th data-type="html" data-prop="note" data-writable>编辑简介</th>
-                            <th data-type="date" data-prop="date" data-date-format="yyyy-MM-dd hh:mm:ss:S"data-writable>编辑注册时间</th>
-                            <th data-type="enum" data-prop="gender" data-writable data-enum='{"MALE":"男","FEMALE":"女"}' data-text="性别"></th>
-                            <th data-type="enum" data-prop="gender" data-writable data-enum='{"MALE":"男","FEMALE":"女"}' data-text="编辑性别">
+                            <th data-type="date" data-prop="date" data-date-format="yyyy-MM-dd hh:mm:ss:S"
+                                data-writable>编辑注册时间
+                            </th>
+                            <th data-type="enum" data-prop="gender" data-writable data-enum='{"MALE":"男","FEMALE":"女"}'
+                                data-text="性别"></th>
+                            <th data-type="enum" data-prop="gender" data-writable data-enum='{"MALE":"男","FEMALE":"女"}'
+                                data-text="编辑性别">
                                 <div data-writable>
                                     <label>
                                         <select name>
@@ -132,19 +137,16 @@
 
         // logger.info(table1);
         logger.info(table);
-        var data = [{
-            name: 'name_1',
-            gender: 'MALE',
-            date: new Date().getTime(),
-            note: '我是<b>加粗</b>内容',
-            birthday: new Date().getTime()
-        }, {
-            name: 'name_2',
-            gender: 'FEMALE',
-            date: new Date().getTime() + 1000000,
-            note: '我是<b>加粗</b>内容',
-            birthday: new Date().getTime()
-        }];
+        var data = [];
+        for (var i = 0; i < 20; i++) {
+            data.push({
+                name: 'name_' + (i + 1),
+                gender: 'MALE',
+                date: new Date().getTime(),
+                note: '我是<b>加粗</b>内容',
+                birthday: new Date().getTime()
+            });
+        }
 
         table.events({
             cellReady: function () {

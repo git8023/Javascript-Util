@@ -3,8 +3,12 @@
 
 .jsu-bounds {position:relative; border:1px solid #EBEEF5;}
 .jsu-bounds.jsu-column-width-editing {cursor:col-resize; user-select:none;}
-.jsu-bounds > .jsu-column-modifier {position:absolute; top:0; left:0; width:3px; cursor:col-resize; background-color:#EBEEF5;}
-.jsu-bounds > .jsu-column-modifier.jsu-trigger-action {height:100%!important; border:0; border-left:1px dashed #AAA; background-color:transparent;}
+
+.jsu-bounds .jsu-column-modifier {position:absolute; top:0; left:0; width:5px; cursor:col-resize; background-color:#EBEEF5; z-index:999; opacity:0.618;}
+.jsu-bounds .jsu-column-modifier:hover {opacity:1;}
+.jsu-bounds .jsu-column-modifier.jsu-trigger-action {height:100%!important; border:0; border-left:1px dashed #AAA; opacity:1;}
+.jsu-bounds > .jsu-fixed-header-container {position:absolute; top:0; left:0; width:100%;}
+.jsu-bounds > .jsu-fixed-header-container > .jsu-table {background:#F00; opacity:.5; width:100%;}
 
 
 .jsu-bounds .jsu-table-header-cell,
@@ -21,39 +25,16 @@
 
 
 .jsu-bounds > .jsu-table > .jsu-table-body {}
-.jsu-bounds > .jsu-table > .jsu-table-body > .jsu-table-row {background:#FFF;
-    -webkit-transition: background-color .3s;
-    -moz-transition: background-color .3s;
-    -ms-transition: background-color .3s;
-    -o-transition: background-color .3s;
-    transition: background-color .3s;
-}
+.jsu-bounds > .jsu-table > .jsu-table-body > .jsu-table-row {background:#FFF; -webkit-transition:background-color .3s; -moz-transition:background-color .3s; -ms-transition:background-color .3s; -o-transition:background-color .3s; transition:background-color .3s;}
 .jsu-bounds > .jsu-table > .jsu-table-body > .jsu-table-row:hover {background:#F5F5F5;}
 .jsu-bounds > .jsu-table > .jsu-table-body > .jsu-table-row > .jsu-table-cell {}
 .jsu-bounds > .jsu-table > .jsu-table-body > .jsu-table-row > .jsu-table-cell > .jsu-selection {}
 .jsu-bounds > .jsu-table > .jsu-table-body > .jsu-table-row > .jsu-table-cell > .jsu-selection-radio {}
 .jsu-bounds > .jsu-table > .jsu-table-body > .jsu-table-row > .jsu-table-cell > .jsu-selection-checkbox {}
-.jsu-bounds > .jsu-table > .jsu-table-body > .jsu-table-row > .jsu-table-cell > .jsu-expander {padding:5px 10px; cursor:pointer;
-    -webkit-transform: rotate(0deg);
-    -moz-transform: rotate(0deg);
-    -ms-transform: rotate(0deg);
-    -o-transform: rotate(0deg);
-    transform: rotate(0deg);
-    -webkit-transition: transform .2s;
-    -moz-transition: transform .2s;
-    -ms-transition: transform .2s;
-    -o-transition: transform .2s;
-    transition: transform .2s;
-}
+.jsu-bounds > .jsu-table > .jsu-table-body > .jsu-table-row > .jsu-table-cell > .jsu-expander {padding:5px 10px; cursor:pointer; -webkit-transform:rotate(0deg); -moz-transform:rotate(0deg); -ms-transform:rotate(0deg); -o-transform:rotate(0deg); transform:rotate(0deg); -webkit-transition:transform .2s; -moz-transition:transform .2s; -ms-transition:transform .2s; -o-transition:transform .2s; transition:transform .2s;}
 /*.jsu-bounds > .jsu-table > .jsu-table-body > .jsu-table-row > .jsu-table-cell > .jsu-expander:before {content:"\f105";}*/
 
-.jsu-bounds > .jsu-table > .jsu-table-body > .jsu-table-row > .jsu-table-cell > .jsu-expander.jsu-expander-opened {
-    -webkit-transform: rotate(90deg);
-    -moz-transform: rotate(90deg);
-    -ms-transform: rotate(90deg);
-    -o-transform: rotate(90deg);
-    transform: rotate(90deg);
-}
+.jsu-bounds > .jsu-table > .jsu-table-body > .jsu-table-row > .jsu-table-cell > .jsu-expander.jsu-expander-opened {-webkit-transform:rotate(90deg); -moz-transform:rotate(90deg); -ms-transform:rotate(90deg); -o-transform:rotate(90deg); transform:rotate(90deg);}
 .jsu-bounds > .jsu-table > .jsu-table-body > .jsu-table-row > .jsu-table-cell > .jsu-expander.jsu-expander-opened:before {
     /*content:"\f107";*/
 }

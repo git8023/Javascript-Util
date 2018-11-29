@@ -133,6 +133,7 @@
         column_width_editing: {value: 'jsu-column-width-editing'},
         trigger_action: {value: 'jsu-trigger-action'},
         swapper_action: {value: 'jsu-swapper-action'},
+        fixed_header_container: {value: 'jsu-fixed-header-container'},
 
         pager_container: {value: 'jsu-table-pager-container'}
     });
@@ -297,6 +298,9 @@
         c.common.timer(function () {
             activeColumnWidthModifier(conf);
         });
+        c.common.timer(function () {
+            conf.templates.$bounds.find('.' > Table.style.column_modifier + ':first').click();
+        }, 200);
         c.common.apply(conf.events.updated, conf.templates.$bounds, data, this);
     };
 
@@ -503,14 +507,14 @@
         // 列顺序调整
         (function () {
             var headerSelector = '.' + style.table_header + '>.' + style.table_header_row + '>.' + style.table_header_cell;
-            c.$common.uniqueDelegate(conf.templates.$main, headerSelector, 'mousedown', function (e) {
+            c.$common.uniqueDelegate(conf.templates.$bounds, headerSelector, 'mousedown', function (e) {
                 c.$common.stopPropagation(e);
                 var $this = conf.swapper.$start = $(this);
                 $this.addClass(Table.style.swapper_action);
                 var index = $this.index();
                 Table.logger && Table.logger.log('列顺序调整结束准备就绪, 开始列索引[' + index + ']', conf.headers[index], $this);
             });
-            c.$common.uniqueDelegate(conf.templates.$main, headerSelector, 'mouseenter', function (e) {
+            c.$common.uniqueDelegate(conf.templates.$bounds, headerSelector, 'mouseenter', function (e) {
                 c.$common.stopPropagation(e);
                 if (!conf.swapper.$start)
                     return;
@@ -569,25 +573,29 @@
              * 4. 在 $bounds 鼠标事件 (mouse up/leave) 中调整列宽并重新生成 $mover
              */
             c.$common.uniqueDelegate(conf.templates.$bounds, '>.' + Table.style.column_modifier, 'mousedown', function (e) {
-                var $this = conf.widthModifier.$trigger = $(this).attr(Table.defineHtmlKey.column_activator_from_x, e.clientX);
+                if (conf.templates.$top)
+                    conf.templates.$top.hide();
+                var
+                    $this = conf.widthModifier.$trigger = $(this);
+                $this.attr(Table.defineHtmlKey.column_activator_from_x, e.clientX);
                 conf.templates.$bounds.addClass(Table.style.column_width_editing);
                 $this.addClass(Table.style.trigger_action);
                 Table.logger && Table.logger.log('激活列宽调整', $this);
             });
             conf.templates.$bounds.mousemove(function (e) {
-                var $trigger = conf.widthModifier.$trigger;
-                if ($trigger) {
-                    $trigger.attr(Table.defineHtmlKey.column_activator_to_x, e.clientX)
-                        .css({
-                            left: e.clientX,
-                            'height': '100%'
-                        });
-                }
+                var
+                    $trigger = conf.widthModifier.$trigger,
+                    box = c.$common.box($trigger);
+                if ($trigger)
+                    $trigger.attr(Table.defineHtmlKey.column_activator_to_x, e.clientX - box.width * 1.5)
+                        .css({left: e.clientX, height: '100%'});
             });
             conf.templates.$bounds.mouseup(function () {
                 calcColumnWidthByModifierTrigger(conf);
+                if (conf.templates.$top)
+                    conf.templates.$top.show();
             }).mouseleave(function () {
-                calcColumnWidthByModifierTrigger(conf)
+                calcColumnWidthByModifierTrigger(conf);
             });
         })();
 
@@ -1056,19 +1064,16 @@
         conf.templates.$bounds = $template;
 
         // 主视图容器
-        var
-            $main = conf.templates.$main = $('<table>').addClass(Table.style.table),
-            $head = $('<thead>').appendTo($main).addClass(Table.style.table_header),
-            $row = $('<tr>').appendTo($head).addClass(Table.style.table_header_row);
-        $main.appendTo($template);
-        c.common.each(conf.headers, function (headConf) {
-            var $th = createHeader(headConf);
-            $row.append($th);
-        });
+        conf.templates.$main = $('<table>').addClass(Table.style.table);
+        conf.templates.$main.appendTo($template);
+        createHeaders(conf, conf.templates.$main);
 
-        // TODO 顶部固定视图
+        // 顶部固定视图
         if (0 < conf.maxHeight) {
             conf.templates.$bounds.css({height: conf.maxHeight, overflow: 'auto'});
+            var $top = $('<div>').addClass(Table.style.fixed_header_container).appendTo(conf.templates.$bounds);
+            conf.templates.$top = $('<table>').addClass(Table.style.table).appendTo($top);
+            createHeaders(conf, conf.templates.$top);
         }
 
         // TODO 左侧固定列视图
@@ -1076,6 +1081,22 @@
 
         conf.$table.replaceWith($template);
         activeColumnWidthModifier(conf);
+    }
+
+    /**
+     * 创建表头
+     * @param conf {*} 配置对象
+     * @param $table {jQuery} 表格对象
+     */
+    function createHeaders(conf, $table) {
+        var
+            $head = $('<thead>').appendTo($table).addClass(Table.style.table_header),
+            $row = $('<tr>').appendTo($head).addClass(Table.style.table_header_row);
+        // $table.appendTo($template);
+        c.common.each(conf.headers, function (headConf) {
+            var $th = createHeader(headConf);
+            $row.append($th);
+        });
     }
 
     /**
@@ -1087,8 +1108,7 @@
         var
             style = Table.style,
             leftOffset = 0;
-        conf.templates.$main
-            .find('>.' + style.table_header + '>.' + style.table_header_row + '>.' + style.table_header_cell)
+        conf.templates.$main.find('>.' + style.table_header + '>.' + style.table_header_row + '>.' + style.table_header_cell)
             .each(function () {
                 var
                     $this = $(this),
