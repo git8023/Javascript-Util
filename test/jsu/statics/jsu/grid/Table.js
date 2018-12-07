@@ -110,8 +110,10 @@
 
     // class样式列表
     Object.defineProperties(Table.style = {}, {
-        bounds: {value: 'jsu-bounds'},
+        bounds: {value: 'jsu-table-bounds'},
+        use_fixed_header: {value: 'jsu-table-use-fixed-header'},
         table: {value: 'jsu-table'},
+        main_container: {value: 'jsu-table-main-container'},
         table_header: {value: 'jsu-table-header'},
         table_header_row: {value: 'jsu-table-header-row'},
         table_header_cell: {value: 'jsu-table-header-cell'},
@@ -119,7 +121,7 @@
         table_row: {value: 'jsu-table-row'},
         table_cell: {value: 'jsu-table-cell'},
         table_empty_row: {value: 'jsu-table-empty-row'},
-        empty_td: {value: 'jsu-empty-td'},
+        empty_td: {value: 'jsu-table-empty-td'},
         selection: {value: 'jsu-selection'},
         selection_radio: {value: 'jsu-selection-radio'},
         selection_checkbox: {value: 'jsu-selection-checkbox'},
@@ -134,8 +136,8 @@
         trigger_action: {value: 'jsu-trigger-action'},
         swapper_action: {value: 'jsu-swapper-action'},
         fixed_header_container: {value: 'jsu-fixed-header-container'},
-
-        pager_container: {value: 'jsu-table-pager-container'}
+        pager_container: {value: 'jsu-table-pager-container'},
+        hide: {value: 'jsu-table-hide_impl'}
     });
 
     // 自定义HTML属性名
@@ -296,12 +298,13 @@
 
         fillRows(conf.templates.$main, conf);
         c.common.timer(function () {
+            var $widthModifier = conf.templates.$bounds.find('.' + Table.style.column_modifier);
+            $widthModifier.addClass(Table.style.hide);
             activeColumnWidthModifier(conf);
-        });
-        c.common.timer(function () {
-            conf.templates.$bounds.find('.' > Table.style.column_modifier + ':first').click();
-        }, 200);
+            $widthModifier.removeClass(Table.style.hide);
+        }, 100);
         c.common.apply(conf.events.updated, conf.templates.$bounds, data, this);
+
     };
 
     /**
@@ -534,8 +537,8 @@
 
                 Table.logger && Table.logger.log('列顺序调整, [' + startIndex + '] ' + (moveToAfter ? '->' : '<-') + ' [' + targetIndex + ']');
                 var fnKey = moveToAfter ? 'after' : 'before';
-
                 $this[fnKey](conf.swapper.$start);
+
                 conf.templates.$main.find('>.' + Table.style.table_body + '>.' + Table.style.table_row).each(function () {
                     var
                         $row = $(this),
@@ -544,7 +547,15 @@
                     $targetCol[fnKey]($startCol);
                 });
 
-                activeColumnWidthModifier(conf);
+                if (conf.templates.$top) {
+                    var
+                        $startHeader = conf.templates.$top.find('.' + Table.style.table_header_cell + ':eq(' + startIndex + ')'),
+                        $targetIndex = conf.templates.$top.find('.' + Table.style.table_header_cell + ':eq(' + targetIndex + ')');
+                    jsu.common.timer(function () {
+                        $targetIndex[fnKey]($startHeader);
+                        activeColumnWidthModifier(conf);
+                    }, 10);
+                }
             });
             var
                 boundsSelector = '[' + Table.defineHtmlKey.bounds_key + '="' + conf._key + '"]',
@@ -572,7 +583,7 @@
              * 3. 在 $bounds 鼠标事件 (mouse move) 中记录left结果值
              * 4. 在 $bounds 鼠标事件 (mouse up/leave) 中调整列宽并重新生成 $mover
              */
-            c.$common.uniqueDelegate(conf.templates.$bounds, '>.' + Table.style.column_modifier, 'mousedown', function (e) {
+            c.$common.uniqueDelegate(conf.templates.$bounds, '.' + Table.style.column_modifier, 'mousedown', function (e) {
                 if (conf.templates.$top)
                     conf.templates.$top.hide();
                 var
@@ -1046,12 +1057,8 @@
         $tbody.html('');
         var
             $row = Table.creator.tr.addClass(Table.style.table_row).addClass(Table.style.table_empty_row),
-            $td = Table.creator.td.addClass(Table.style.empty_td)
-                .text('没有找到数据')
-                .attr({
-                    colSpan: conf.headers.length,
-                    'style': 'text-align:center;'
-                });
+            $td = Table.creator.td.addClass(Table.style.empty_td).text('没有数据')
+                .attr({colSpan: conf.headers.length, 'style': 'text-align:center;'});
         $row.append($td).appendTo($tbody);
     }
 
@@ -1065,15 +1072,22 @@
 
         // 主视图容器
         conf.templates.$main = $('<table>').addClass(Table.style.table);
-        conf.templates.$main.appendTo($template);
+        $('<div>').addClass(Table.style.main_container).append(conf.templates.$main).appendTo($template);
         createHeaders(conf, conf.templates.$main);
 
         // 顶部固定视图
         if (0 < conf.maxHeight) {
-            conf.templates.$bounds.css({height: conf.maxHeight, overflow: 'auto'});
+            conf.templates.$bounds.addClass(Table.style.use_fixed_header);
+            conf.templates.$main.parent().css({height: conf.maxHeight});
             var $top = $('<div>').addClass(Table.style.fixed_header_container).appendTo(conf.templates.$bounds);
             conf.templates.$top = $('<table>').addClass(Table.style.table).appendTo($top);
             createHeaders(conf, conf.templates.$top);
+
+            // 左右侧可能出现滚动条, 需要在最右侧添加一列
+            var
+                $header = conf.templates.$top.find('>.' + Table.style.table_header),
+                $row = $header.find('.' + Table.style.table_header_row);
+            $('<td>').addClass(Table.style.table_header_cell).appendTo($row);
         }
 
         // TODO 左侧固定列视图
@@ -1104,7 +1118,7 @@
      * @param conf {*} 插件配置
      */
     function activeColumnWidthModifier(conf) {
-        conf.templates.$bounds.find('>.' + Table.style.column_modifier).remove();
+        conf.templates.$bounds.find('.' + Table.style.column_modifier).remove();
         var
             style = Table.style,
             leftOffset = 0;
@@ -1121,7 +1135,28 @@
                 leftOffset += outerWidth - 1;
                 conf.templates.$main.before($mover);
             });
-        conf.templates.$bounds.find('>.' + Table.style.column_modifier + ':last').remove();
+        conf.templates.$bounds.find('.' + Table.style.column_modifier + ':last').remove();
+
+        if (conf.templates.$top) {
+            var $headers = conf.templates.$top.find('.' + Table.style.table_header + ' .' + Table.style.table_header_cell);
+
+            // 最后一列是滚动条调整列无需指定宽度
+            delete $headers[$headers.length - 1];
+            $headers.length -= 1;
+
+            // 倒数第二列自动调整宽度无需指定
+            var $lastHeader = $($headers[$headers.length - 1]);
+            $lastHeader.width('auto');
+
+            delete $headers[$headers.length - 1];
+            $headers.length -= 1;
+            conf.templates.$main.find('.' + Table.style.table_header_row + ':first>.' + Table.style.table_header_cell).each(function (index) {
+                var
+                    $header = $($headers[index]),
+                    width = $(this).width();
+                $header.width(width);
+            });
+        }
     }
 
     /**
