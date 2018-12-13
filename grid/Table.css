@@ -2,10 +2,11 @@
 
 
 .jsu-table-bounds {position:relative; border:1px solid #EBEEF5;}
+.jsu-table-bounds .jsu-table {word-wrap:break-word; word-break:break-all;}
 .jsu-table-bounds .jsu-table-hide_impl {display:none;}
 .jsu-table-bounds.jsu-column-width-editing {cursor:col-resize; user-select:none;}
 
-.jsu-table-bounds .jsu-column-modifier {position:absolute; top:0; left:0; width:5px; cursor:col-resize; background-color:#EBEEF5; z-index:999; opacity:0.3;}
+.jsu-table-bounds .jsu-column-modifier {position:absolute; top:0; left:0; width:5px; cursor:col-resize; background-color:#EBEEF5; z-index:999; opacity:0;}
 .jsu-table-bounds .jsu-column-modifier:hover {opacity:1;}
 .jsu-table-bounds .jsu-column-modifier.jsu-trigger-action {height:100%!important; border:0; border-left:1px dashed #AAA; opacity:1;}
 .jsu-table-bounds .jsu-column-modifier:last-child {display:none;}
@@ -23,7 +24,7 @@
 .jsu-table-bounds .jsu-table > .jsu-table-header {}
 .jsu-table-bounds .jsu-table > .jsu-table-header > .jsu-table-header-row {}
 .jsu-table-bounds .jsu-table > .jsu-table-header > .jsu-table-header-row > .jsu-table-header-cell {}
-.jsu-table-bounds .jsu-table > .jsu-table-header > .jsu-table-header-row > .jsu-table-header-cell.jsu-swapper-action {background-color:#EBEEF5;}
+.jsu-table-bounds .jsu-table > .jsu-table-header > .jsu-table-header-row > .jsu-table-header-cell.jsu-swapper-action {background-color:#EBEEF5!important;}
 
 
 .jsu-table-bounds .jsu-table > .jsu-table-body {}
@@ -54,6 +55,8 @@
 
 
 .jsu-table-bounds.jsu-table-use-fixed-header > .jsu-table-main-container {overflow:auto; max-height:100%;}
-.jsu-table-bounds .jsu-fixed-header-container > .jsu-table > .jsu-table-header > .jsu-table-header-row > .jsu-table-header-cell:last-child {width:20px!important;}
+.jsu-table-bounds .jsu-fixed-header-container > .jsu-table > .jsu-table-header > .jsu-table-header-row > .jsu-table-header-cell {background:#FFF; box-shadow:0 3px 0 rgba(0,0,0,.3);}
+.jsu-table-bounds .jsu-fixed-header-container > .jsu-table > .jsu-table-header > .jsu-table-header-row > .jsu-table-header-cell:last-child {width:15px; border-left:0; border-bottom:0; pointer-events:none; padding-left:0; padding-right:0; background:transparent;}
+.jsu-table-bounds .jsu-fixed-header-container > .jsu-table > .jsu-table-header > .jsu-table-header-row > .jsu-table-header-cell:nth-last-child(2) {border-right:0;}
 
 

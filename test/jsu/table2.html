@@ -7,7 +7,11 @@
     <link href="statics/font-awesome-4.7.0/css/font-awesome.css" rel="stylesheet">
     <link rel="stylesheet" href="statics/jsu/grid/Table.css">
     <style>
-        body {padding:0; margin:0;}
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
         .grid table {
             width: 100%;
             border-collapse: collapse;
@@ -30,7 +34,7 @@
 <body>
 <h1>测试单表格基础功能</h1>
 <div class="grid grid_2">
-    <table class="table" style="color:#AAA" data-max-height="400">
+    <table class="table" style="color:#AAA" data-max-height="500">
         <thead>
         <tr>
             <th data-type="index" data-text></th>
@@ -98,6 +102,7 @@
     <button id="getActionRows">Get Action Rows</button>
     <button id="actionSecond">Set Action Second</button>
     <button id="clearActions">Clear Actions</button>
+    <button id="addRow">Add Rows</button>
 </p>
 
 <script src="statics/jquery-v3.3.1.js"></script>
@@ -132,11 +137,25 @@
         $('#clearActions').click(function () {
             logger.info('Clear Actions ', table.clearActions());
         });
+        $('#addRow').click(function () {
+            var
+                data = table.data(),
+                maxLen = parseInt(Math.random() * 10 + 1 + '');
+            for (var i = 0; i < maxLen; i++)
+                data.push({
+                    name: 'New name_' + (i + 1),
+                    gender: 'MALE',
+                    date: new Date().getTime(),
+                    note: 'New 内容',
+                    birthday: new Date().getTime()
+                });
+            table.data(data, false);
+        });
 
         // logger.info(table1);
         logger.info(table);
         var data = [];
-        for (var i = 0; i < 20; i++) {
+        for (var i = 0; i < 5; i++) {
             data.push({
                 name: 'name_' + (i + 1),
                 gender: 'MALE',
