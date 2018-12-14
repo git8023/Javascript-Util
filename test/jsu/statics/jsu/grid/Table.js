@@ -137,7 +137,9 @@
         swapper_action: {value: 'jsu-swapper-action'},
         fixed_header_container: {value: 'jsu-fixed-header-container'},
         pager_container: {value: 'jsu-table-pager-container'},
-        hide: {value: 'jsu-table-hide_impl'}
+        hide: {value: 'jsu-table-hide_impl'},
+        scrolling: {value: 'jsu-table-scrolling'},
+        scrolling_down: {value: 'jsu-table-scrolling-down'}
     });
 
     // 自定义HTML属性名
@@ -305,6 +307,7 @@
         }, 100);
         c.common.apply(conf.events.updated, conf.templates.$bounds, data, this);
 
+        checkScroll(conf);
     };
 
     /**
@@ -501,14 +504,48 @@
     }
 
     /**
+     * 校验滚动条
+     * @param conf {*} 配置对象
+     */
+    function checkScroll(conf) {
+        if (conf.templates.$top) {
+            // 主视图出现滚动条时隐藏顶部固定视图滚动条修复列
+            var
+                parent = conf.templates.$main.parent()[0],
+                hasScroll = 0 < (parent.scrollHeight - parent.clientHeight);
+            if (hasScroll) conf.templates.$bounds.addClass(Table.style.scrolling);
+            else conf.templates.$bounds.removeClass(Table.style.scrolling);
+        }
+
+        calcColumnWidthByModifierTrigger(conf);
+    }
+
+    /**
      * 激活事件
      * @param conf {*} 表格插件配置
      */
     function activeRegisterEvents(conf) {
         var style = Table.style;
 
+        // 主视图滚动事件
+        (function () {
+            // 上下滚动固定顶部表头
+            conf.templates.$main.parent().scroll(function () {
+                var
+                    $this = $(this),
+                    scrollTop = $this.scrollTop(),
+                    fnName = (0 < scrollTop) ? 'addClass' : 'removeClass';
+                conf.templates.$bounds[fnName](Table.style.scrolling_down);
+            });
+        })();
+
         // 列顺序调整
         (function () {
+            if (conf.templates.$top) {
+                Table.logger.info('固定表头时， 不启用列顺序调整');
+                return;
+            }
+
             var headerSelector = '.' + style.table_header + '>.' + style.table_header_row + '>.' + style.table_header_cell;
             c.$common.uniqueDelegate(conf.templates.$bounds, headerSelector, 'mousedown', function (e) {
                 c.$common.stopPropagation(e);
@@ -593,21 +630,23 @@
                 $this.addClass(Table.style.trigger_action);
                 Table.logger && Table.logger.log('激活列宽调整', $this);
             });
-            conf.templates.$bounds.mousemove(function (e) {
-                var
-                    $trigger = conf.widthModifier.$trigger,
-                    box = c.$common.box($trigger);
-                if ($trigger)
-                    $trigger.attr(Table.defineHtmlKey.column_activator_to_x, e.clientX - box.width * 1.5)
-                        .css({left: e.clientX, height: '100%'});
-            });
-            conf.templates.$bounds.mouseup(function () {
-                calcColumnWidthByModifierTrigger(conf);
-                if (conf.templates.$top)
-                    conf.templates.$top.show();
-            }).mouseleave(function () {
-                calcColumnWidthByModifierTrigger(conf);
-            });
+            conf.templates.$bounds
+                .mousemove(function (e) {
+                    var
+                        $trigger = conf.widthModifier.$trigger,
+                        box = c.$common.box($trigger);
+                    if ($trigger)
+                        $trigger.attr(Table.defineHtmlKey.column_activator_to_x, e.clientX - box.width * 1.5)
+                            .css({left: e.clientX});
+                })
+                .mouseup(function () {
+                    calcColumnWidthByModifierTrigger(conf);
+                    if (conf.templates.$top)
+                        conf.templates.$top.show();
+                })
+                .mouseleave(function () {
+                    calcColumnWidthByModifierTrigger(conf);
+                });
         })();
 
         // 鼠标进入数据行
@@ -634,6 +673,7 @@
                     Table.logger && Table.logger.info('鼠标离开表格行');
                     c.common.apply(conf.events.mouseLeave, $row, row, e, $row);
                 }
+                checkScroll(conf);
             });
             c.$common.uniqueDelegate(conf.templates.$bounds, rowClassSelector, 'click', function (e) {
                 c.$common.stopPropagation(e);
@@ -688,6 +728,7 @@
                         }, 50);
                         Table.logger && Table.logger.log('添加扩展模板');
                     }
+                    checkScroll(conf);
                     return;
                 }
 
@@ -703,6 +744,8 @@
                     }, 50);
                     Table.logger && Table.logger.log('删除扩展模板');
                 }
+                checkScroll(conf);
+
             });
             // selection radio
             var bodyRadioClassSelector = rowClassSelector + ' > .' + style.table_cell + ' > .' + style.selection_radio;
@@ -818,26 +861,24 @@
     function calcColumnWidthByModifierTrigger(conf) {
         conf.templates.$bounds.removeClass(Table.style.column_width_editing);
         var $trigger = conf.widthModifier.$trigger;
-        if (!$trigger)
-            return;
+        if ($trigger) {
+            var
+                triggerIndex = $trigger.index(),
+                fromX = $trigger.attr(Table.defineHtmlKey.column_activator_from_x),
+                toX = $trigger.attr(Table.defineHtmlKey.column_activator_to_x),
+                movedSize = toX - fromX;
+            // 表头单元格调整
+            // 数据行自动根据表头宽度适应
+            var $header = conf.templates.$main
+                .find('>.' + Table.style.table_header + '>.' + Table.style.table_header_row)
+                .find('>.' + Table.style.table_header_cell)
+                .eq(triggerIndex);
+            $header.width($header.width() + movedSize);
 
-        var
-            triggerIndex = $trigger.index(),
-            fromX = $trigger.attr(Table.defineHtmlKey.column_activator_from_x),
-            toX = $trigger.attr(Table.defineHtmlKey.column_activator_to_x),
-            movedSize = toX - fromX;
-
-        // 表头单元格调整
-        // 数据行自动根据表头宽度适应
-        var $header = conf.templates.$main
-            .find('>.' + Table.style.table_header + '>.' + Table.style.table_header_row)
-            .find('>.' + Table.style.table_header_cell)
-            .eq(triggerIndex);
-        $header.width($header.width() + movedSize);
-
-        // 释放触发器
-        conf.widthModifier.$trigger.removeClass(Table.style.trigger_action);
-        conf.widthModifier.$trigger = null;
+            // 释放触发器
+            conf.widthModifier.$trigger.removeClass(Table.style.trigger_action);
+            conf.widthModifier.$trigger = null;
+        }
 
         // 刷新触发器位置
         activeColumnWidthModifier(conf);
@@ -909,7 +950,7 @@
      * 创建行控件
      * @param row {*} 行数据
      * @param conf {*} 表格插件配置
-     * @param rowIndex {Number} 行索引
+     * @param rowIndex {number} 行索引
      */
     function createRow(row, conf, rowIndex) {
         var
@@ -932,8 +973,8 @@
      * 创建单元格控件
      * @param headConf {*} 表头配置
      * @param row {*} 行数据
-     * @param index {Number} 单元格索引/下标
-     * @param rowIndex {Number} 行索引
+     * @param index {number|string} 单元格索引/下标
+     * @param rowIndex {number} 行索引
      * @param conf {*} 表格插件配置
      * @return {*} 单元格控件
      */
@@ -1122,7 +1163,8 @@
         var
             style = Table.style,
             leftOffset = 0;
-        conf.templates.$main.find('>.' + style.table_header + '>.' + style.table_header_row + '>.' + style.table_header_cell)
+        conf.templates.$main
+            .find('>.' + style.table_header + '>.' + style.table_header_row + '>.' + style.table_header_cell)
             .each(function () {
                 var
                     $this = $(this),
@@ -1132,7 +1174,7 @@
                     left: outerWidth + leftOffset - 2,
                     height: $this.outerHeight()
                 });
-                leftOffset += outerWidth - 1;
+                leftOffset += outerWidth;
                 conf.templates.$main.before($mover);
             });
         conf.templates.$bounds.find('.' + Table.style.column_modifier + ':last').remove();
@@ -1328,8 +1370,12 @@
         }
 
         // 启用固定表头
-        if (0 < tableDataSet.maxHeight)
-            conf.maxHeight = +tableDataSet.maxHeight;
+        if (tableDataSet.maxHeight) {
+            if (0 < tableDataSet.maxHeight)
+                conf.maxHeight = +tableDataSet.maxHeight;
+            else
+                Table.logger.warn('固定高度配置无效[data-max-height=' + tableDataSet.maxHeight + '], 只接受数值类型');
+        }
 
     }
 
