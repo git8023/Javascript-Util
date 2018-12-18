@@ -112,6 +112,7 @@
     Object.defineProperties(Table.style = {}, {
         bounds: {value: 'jsu-table-bounds'},
         use_fixed_header: {value: 'jsu-table-use-fixed-header'},
+        use_fixed_left_header: {value: 'jsu-table-use-fixed-left-header'},
         table: {value: 'jsu-table'},
         main_container: {value: 'jsu-table-main-container'},
         table_header: {value: 'jsu-table-header'},
@@ -136,10 +137,12 @@
         trigger_action: {value: 'jsu-trigger-action'},
         swapper_action: {value: 'jsu-swapper-action'},
         fixed_header_container: {value: 'jsu-fixed-header-container'},
+        fixed_left_header_container: {value: 'jsu-fixed-left-header-container'},
         pager_container: {value: 'jsu-table-pager-container'},
         hide: {value: 'jsu-table-hide_impl'},
         scrolling: {value: 'jsu-table-scrolling'},
-        scrolling_down: {value: 'jsu-table-scrolling-down'}
+        scrolling_down: {value: 'jsu-table-scrolling-down'},
+        scrolling_right: {value: 'jsu-table-scrolling-right'},
     });
 
     // 自定义HTML属性名
@@ -223,9 +226,9 @@
             err, html, errAttrIndex;
         conf.headers = [];
         $table.find('tr:eq(0)>th').each(function () {
-            var $th = $(this);
-            var headConf = parseHeaderConfig($th);
-
+            var
+                $th = $(this),
+                headConf = parseHeaderConfig($th);
             switch (headConf.type) {
                 case 'selection':
                     if (hasSelectionColumn) {
@@ -257,6 +260,27 @@
                     conf.headers.push(headConf);
             }
         });
+
+        // 获取左右固定列, 并按照左右固定列修正表头顺序
+        var fixedLRMap = c.arrays.group(conf.headers, 'fixed');
+        jsu.common.each(conf.fixedHeaders, function (val, key) {
+            conf.fixedHeaders[key] = fixedLRMap[key] || [];
+        });
+        jsu.common.each(conf.fixedHeaders, function (list, direction) {
+            c.arrays.remove(conf.headers, list);
+            switch (direction) {
+                case 'left':
+                    c.arrays.appendBefore(conf.headers, list);
+                    break;
+                case 'right':
+                    c.arrays.push(conf.headers, list);
+                    break;
+            }
+        });
+
+        // FIXME 存在展开列时， 暂不支持左右固定
+        if (hasExpandColumn && (conf.fixedHeaders.left.length || conf.fixedHeaders.right.length))
+            throw new Error('当前版本暂不支持同时配置 expand 和 data-fixed="left|right"');
 
         // 获取表格模板
         replaceWithTemplate(conf);
@@ -298,16 +322,38 @@
             conf.data = data;
         }
 
+        // 填充主视图
         fillRows(conf.templates.$main, conf);
         c.common.timer(function () {
             var $widthModifier = conf.templates.$bounds.find('.' + Table.style.column_modifier);
             $widthModifier.addClass(Table.style.hide);
             activeColumnWidthModifier(conf);
+            checkScroll(conf);
             $widthModifier.removeClass(Table.style.hide);
         }, 100);
-        c.common.apply(conf.events.updated, conf.templates.$bounds, data, this);
 
-        checkScroll(conf);
+        // 填充左侧固定视图
+        if (conf.templates.$left) {
+            var $tbody = conf.templates.$left.find('.' + Table.style.table_body + ':first').html('');
+            if (!$tbody.length)
+                ($tbody = Table.creator.tbody).appendTo(conf.templates.$left).addClass(Table.style.table_body);
+
+            var mainSelector = '>.' + Table.style.table_body + '>.' + Table.style.table_row;
+            c.common.each(conf.data, function (row, rowIndex) {
+                var
+                    $row = Table.creator.tr,
+                    $mainRow = conf.templates.$main.find(mainSelector).eq(rowIndex);
+                $row.height($mainRow.height());
+                $tbody.append($row);
+
+                c.common.each(conf.fixedHeaders.left, function (headConf, cellIndex) {
+                    var $cell = createCell(headConf, row, cellIndex, rowIndex, conf);
+                    $row.append($cell);
+                });
+            });
+        }
+
+        c.common.apply(conf.events.updated, conf.templates.$bounds, data, this);
     };
 
     /**
@@ -508,14 +554,29 @@
      * @param conf {*} 配置对象
      */
     function checkScroll(conf) {
-        if (conf.templates.$top) {
-            // 主视图出现滚动条时隐藏顶部固定视图滚动条修复列
-            var
-                parent = conf.templates.$main.parent()[0],
-                hasScroll = 0 < (parent.scrollHeight - parent.clientHeight);
-            if (hasScroll) conf.templates.$bounds.addClass(Table.style.scrolling);
-            else conf.templates.$bounds.removeClass(Table.style.scrolling);
-        }
+
+        // 修复顶部固定表头最右侧滚动条宽度
+        if (conf.templates.$top)
+            (function () {
+                var
+                    parent = conf.templates.$main.parent()[0],
+                    hasScroll = 0 < (parent.scrollHeight - parent.clientHeight);
+                if (hasScroll) conf.templates.$bounds.addClass(Table.style.scrolling);
+                else conf.templates.$bounds.removeClass(Table.style.scrolling);
+            })();
+
+        // 修复左侧固定列，底部滚动条高度
+        if (conf.templates.$left)
+            (function () {
+                var
+                    parent = conf.templates.$main.parent()[0],
+                    hasScroll = 0 < (parent.scrollWidth - parent.clientWidth);
+                var $leftContainer = conf.templates.$left.parent();
+                if (hasScroll) {
+                    var maxHeight = parseFloat($(parent).css('max-height'));
+                    $leftContainer.css('max-height', maxHeight - 15);
+                }
+            })();
 
         calcColumnWidthByModifierTrigger(conf);
     }
@@ -529,13 +590,29 @@
 
         // 主视图滚动事件
         (function () {
-            // 上下滚动固定顶部表头
             conf.templates.$main.parent().scroll(function () {
-                var
-                    $this = $(this),
-                    scrollTop = $this.scrollTop(),
-                    fnName = (0 < scrollTop) ? 'addClass' : 'removeClass';
+                var $this = $(this);
+
+                // 已经向下滚动
+                var fnName = (0 < $this.scrollTop()) ? 'addClass' : 'removeClass';
                 conf.templates.$bounds[fnName](Table.style.scrolling_down);
+
+                // 左右滚动条
+                if (conf.templates.$top)
+                    conf.templates.$top.parent().scrollLeft($this.scrollLeft());
+
+                // 已经向右滚动
+                fnName = (0 < $this.scrollLeft()) ? 'addClass' : 'removeClass';
+                conf.templates.$bounds[fnName](Table.style.scrolling_right);
+                if (conf.templates.$left) {
+                    c.common.timer(function () {
+                        conf.templates.$left.parent().css({'padding-right': 5.0});
+                        c.common.timer(function () {
+                            conf.templates.$left.parent().css({'padding-right': 5});
+                        });
+                    });
+                    conf.templates.$left.parent().scrollTop($this.scrollTop());
+                }
             });
         })();
 
@@ -704,8 +781,6 @@
                     $row = $this.parents('.' + Table.style.table_row),
                     rowDataKey = $row.attr(Table.defineHtmlKey.row_data_key),
                     row = conf.uniqueIndexedData[rowDataKey];
-
-                // 当前已展开, 执行关闭逻辑
                 var $expandRow = conf.expandIndexedCache[rowDataKey];
 
                 // 展开逻辑
@@ -727,22 +802,26 @@
                             c.common.apply(conf.events.expandOpened, $row, row, $expandRow, e, $row);
                         }, 50);
                         Table.logger && Table.logger.log('添加扩展模板');
-                    }
-                    checkScroll(conf);
-                    return;
-                }
 
-                // 关闭逻辑
-                if (false === c.common.apply(conf.events.expandClose, $row, row, $expandRow, e, $row)) {
-                    Table.logger && Table.logger.log('expandClose 事件阻止关闭扩展行');
+                        // FIXME 两侧固定列与 expand 类型无法同步
+                        // if (conf.templates.$left) {
+                        //     var $leftRow = conf.templates.$left.find('.' + Table.style.table_body + '>.' + Table.style.table_row).eq($row.index());
+                        //     $leftRow.after($expandRow.clone());
+                        // }
+                    }
                 } else {
-                    $expandRow.remove();
-                    delete conf.expandIndexedCache[rowDataKey];
-                    $this.removeClass(Table.style.expander_opened);
-                    c.common.timer(function () {
-                        c.common.apply(conf.events.expandClosed, $row, row, $expandRow, e, $row);
-                    }, 50);
-                    Table.logger && Table.logger.log('删除扩展模板');
+                    // 关闭逻辑
+                    if (false === c.common.apply(conf.events.expandClose, $row, row, $expandRow, e, $row)) {
+                        Table.logger && Table.logger.log('expandClose 事件阻止关闭扩展行');
+                    } else {
+                        $expandRow.remove();
+                        delete conf.expandIndexedCache[rowDataKey];
+                        $this.removeClass(Table.style.expander_opened);
+                        c.common.timer(function () {
+                            c.common.apply(conf.events.expandClosed, $row, row, $expandRow, e, $row);
+                        }, 50);
+                        Table.logger && Table.logger.log('删除扩展模板');
+                    }
                 }
                 checkScroll(conf);
 
@@ -1117,21 +1196,38 @@
         createHeaders(conf, conf.templates.$main);
 
         // 顶部固定视图
-        if (0 < conf.maxHeight) {
-            conf.templates.$bounds.addClass(Table.style.use_fixed_header);
-            conf.templates.$main.parent().css({height: conf.maxHeight});
-            var $top = $('<div>').addClass(Table.style.fixed_header_container).appendTo(conf.templates.$bounds);
-            conf.templates.$top = $('<table>').addClass(Table.style.table).appendTo($top);
-            createHeaders(conf, conf.templates.$top);
+        if (0 < conf.maxHeight)
+            (function () {
+                conf.templates.$bounds.addClass(Table.style.use_fixed_header);
+                conf.templates.$main.parent().css({'max-height': conf.maxHeight});
+                var $topContainer = $('<div>').addClass(Table.style.fixed_header_container).appendTo(conf.templates.$bounds);
+                conf.templates.$top = $('<table>').addClass(Table.style.table).appendTo($topContainer);
+                createHeaders(conf, conf.templates.$top);
 
-            // 左右侧可能出现滚动条, 需要在最右侧添加一列
-            var
-                $header = conf.templates.$top.find('>.' + Table.style.table_header),
-                $row = $header.find('.' + Table.style.table_header_row);
-            $('<td>').addClass(Table.style.table_header_cell).appendTo($row);
-        }
+                // 右侧滚动条修复列
+                var
+                    $header = conf.templates.$top.find('>.' + Table.style.table_header),
+                    $row = $header.find('.' + Table.style.table_header_row);
+                $('<td>').addClass(Table.style.table_header_cell).appendTo($row);
+            })();
 
-        // TODO 左侧固定列视图
+        // 左侧固定列视图
+        if (0 < conf.fixedHeaders.left.length)
+            (function () {
+                conf.templates.$bounds.addClass(Table.style.use_fixed_left_header);
+                var $leftContainer = $('<div>').addClass(Table.style.fixed_left_header_container).appendTo(conf.templates.$bounds);
+                if (conf.maxHeight) $leftContainer.css({'max-height': conf.maxHeight});
+                conf.templates.$left = $('<table>').addClass(Table.style.table).appendTo($leftContainer);
+
+                var
+                    $head = $('<thead>').appendTo(conf.templates.$left).addClass(Table.style.table_header),
+                    $row = $('<tr>').appendTo($head).addClass(Table.style.table_header_row);
+                c.common.each(conf.fixedHeaders.left, function (headConf) {
+                    var $th = createHeader(headConf).width(headConf.width);
+                    $row.append($th);
+                });
+            }());
+
         // TODO 右侧固定视图
 
         conf.$table.replaceWith($template);
@@ -1147,9 +1243,8 @@
         var
             $head = $('<thead>').appendTo($table).addClass(Table.style.table_header),
             $row = $('<tr>').appendTo($head).addClass(Table.style.table_header_row);
-        // $table.appendTo($template);
         c.common.each(conf.headers, function (headConf) {
-            var $th = createHeader(headConf);
+            var $th = createHeader(headConf).width(headConf.width);
             $row.append($th);
         });
     }
@@ -1160,45 +1255,78 @@
      */
     function activeColumnWidthModifier(conf) {
         conf.templates.$bounds.find('.' + Table.style.column_modifier).remove();
-        var
-            style = Table.style,
-            leftOffset = 0;
-        conf.templates.$main
-            .find('>.' + style.table_header + '>.' + style.table_header_row + '>.' + style.table_header_cell)
-            .each(function () {
-                var
-                    $this = $(this),
-                    outerWidth = $this.outerWidth(),
-                    $mover = Table.creator.columnModifier;
-                $mover.css({
-                    left: outerWidth + leftOffset - 2,
-                    height: $this.outerHeight()
+
+        // 主视图
+        (function () {
+            var
+                style = Table.style,
+                leftOffset = 0;
+            conf.templates.$main
+                .find('>.' + style.table_header + '>.' + style.table_header_row + '>.' + style.table_header_cell)
+                .each(function () {
+                    var
+                        $this = $(this),
+                        outerWidth = $this.outerWidth(),
+                        $mover = Table.creator.columnModifier;
+                    $mover.css({
+                        left: outerWidth + leftOffset - 2,
+                        height: $this.outerHeight()
+                    });
+                    leftOffset += outerWidth;
+                    conf.templates.$main.before($mover);
                 });
-                leftOffset += outerWidth;
-                conf.templates.$main.before($mover);
-            });
-        conf.templates.$bounds.find('.' + Table.style.column_modifier + ':last').remove();
+            conf.templates.$bounds.find('.' + Table.style.column_modifier + ':last').remove();
+        })();
 
-        if (conf.templates.$top) {
-            var $headers = conf.templates.$top.find('.' + Table.style.table_header + ' .' + Table.style.table_header_cell);
+        // 固定表头
+        if (conf.templates.$top)
+            (function () {
+                conf.templates.$top.width(conf.templates.$main.width());
+                conf.templates.$top.parent().css({overflow: 'hidden'});
 
-            // 最后一列是滚动条调整列无需指定宽度
-            delete $headers[$headers.length - 1];
-            $headers.length -= 1;
+                var $headers = conf.templates.$top.find('.' + Table.style.table_header + ' .' + Table.style.table_header_cell);
 
-            // 倒数第二列自动调整宽度无需指定
-            var $lastHeader = $($headers[$headers.length - 1]);
-            $lastHeader.width('auto');
+                // 最后一列是滚动条调整列无需指定宽度
+                delete $headers[$headers.length - 1];
+                $headers.length -= 1;
 
-            delete $headers[$headers.length - 1];
-            $headers.length -= 1;
-            conf.templates.$main.find('.' + Table.style.table_header_row + ':first>.' + Table.style.table_header_cell).each(function (index) {
-                var
-                    $header = $($headers[index]),
-                    width = $(this).width();
-                $header.width(width);
-            });
-        }
+                // 倒数第二列自动调整宽度无需指定
+                var $lastHeader = $($headers[$headers.length - 1]);
+                $lastHeader.width('auto');
+
+                delete $headers[$headers.length - 1];
+                $headers.length -= 1;
+                conf.templates.$main
+                    .find('.' + Table.style.table_header_row + ':first>.' + Table.style.table_header_cell)
+                    .each(function (index) {
+                        var
+                            $header = $($headers[index]),
+                            width = $(this).width();
+                        $header.width(width);
+                    });
+
+            })();
+
+        // 左侧固定
+        if (0 < conf.fixedHeaders.left.length)
+            (function () {
+                jsu.common.each(conf.fixedHeaders.left, function (headConf, index) {
+                    var
+                        $th = conf.templates.$left.find('.' + Table.style.table_header_row + ':first>.' + Table.style.table_header_cell + ':eq(' + index + ')'),
+                        $mainTh = conf.templates.$main.find('.' + Table.style.table_header_row + ':first>.' + Table.style.table_header_cell + ':eq(' + index + ')');
+                    $th.width($mainTh.width());
+                    $th.height($mainTh.height());
+                });
+                // 行高与主视图一致
+                var rowSelector = '>.' + Table.style.table_body + '>.' + Table.style.table_row;
+                conf.templates.$main
+                    .find(rowSelector + '[' + Table.defineHtmlKey.row_data_key + ']')
+                    .each(function (index) {
+                        var $row = conf.templates.$left.find(rowSelector).eq(index);
+                        $row.height($(this).height());
+                    });
+            })();
+
     }
 
     /**
@@ -1208,8 +1336,8 @@
     function createHeader(headConf) {
         var $th = $('<th>').text(headConf.text).addClass(Table.style.table_header_cell);
         if (('selection' === headConf.type) && ('checkbox' === headConf.selection)) {
-            var $thS = $('<input>', {type: 'checkbox', class: Table.style.selection_checkbox});
-            $thS.prependTo($th);
+            var $thSelection = $('<input>', {type: 'checkbox', class: Table.style.selection_checkbox});
+            $thSelection.prependTo($th);
         }
         return $th;
     }
@@ -1234,8 +1362,20 @@
                 template: null,
                 $origin: $th,
                 writable: false,
-                $writable: null
+                $writable: null,
+                fixed: dataSet.fixed,   // 'left|right'
+                width: dataSet.width
             };
+
+        if (headConfig.fixed && -1 === ['left', 'right'].indexOf(headConfig.fixed)) {
+            headConfig.fixed = null;
+            Table.logger.warn('data-fixed配置无效, 只允许"left"或"right"两个值');
+        }
+
+        if (headConfig.width && 0 >= headConfig.width) {
+            Table.logger.warn('data-width配置无效, 必须是大于0[' + headConfig.width + ']');
+            headConfig.width = null;
+        }
 
         // [data-writable]
         headConfig.writable = !c.valid.nullOrUndefined(dataSet.writable);
@@ -1406,7 +1546,6 @@
                 expandOpened: null,         // 扩展行打开后
                 expandClose: null,          // 扩展行关闭前
                 expandClosed: null          // 扩展行关闭后
-
             },
             $container: c.valid.isJQuery($c) ? $c : $($c),
             $table: null,       // 原表格控件
@@ -1418,6 +1557,10 @@
                 $top: null      // 表头定位
             },
             headers: [],
+            fixedHeaders: {
+                left: [],       // 左侧固定列
+                right: []       // 右侧固定列
+            },
             swapper: {
                 $start: null,       // 起始列
                 $target: null       // 结束列

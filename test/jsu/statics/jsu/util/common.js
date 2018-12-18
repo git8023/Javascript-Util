@@ -1,7 +1,7 @@
 /* ************************************
  * common 常规工具
  * ************************************/
-(function (c) {
+;(function (c) {
     'use strict';
 
     c.common = {
@@ -9,7 +9,7 @@
         /**
          * 数组/对象遍历
          * @param obj {Array|Object} 数组/对象
-         * @param each {function(val, key):?boolean} 处理器
+         * @param each {function(val:*, key:number|string):?boolean} 处理器
          */
         each: function (obj, each) {
             if (c.valid.isArray(obj)) {
@@ -618,7 +618,7 @@
         },
 
         /**
-         * 追加元素
+         * 尾部追加元素
          * @param arr {Array} 源数组
          * @param el {object|Array} 追加的元素
          * @param [distinct=true] {boolean} true-保证数据元素唯一性
@@ -628,6 +628,22 @@
             if (!c.valid.isArray(arr)) throw new Error("参数 arr 不是一个数组");
             if (!c.valid.isArray(el)) el = [el];
             Array.prototype.push.apply(arr, el);
+            if (distinct || c.valid.nullOrUndefined(distinct))
+                c.arrays.unique(arr);
+            return arr;
+        },
+
+        /**
+         * 头部追加元素
+         * @param arr {Array} 源数组
+         * @param el {object|Array} 追加的元素
+         * @param [distinct=true] {boolean} true-保证数据元素唯一性
+         * @return {Array} 源数组
+         */
+        appendBefore: function (arr, el, distinct) {
+            if (!c.valid.isArray(arr)) throw new Error("参数 arr 不是一个数组");
+            if (!c.valid.isArray(el)) el = [el];
+            Array.prototype.unshift.apply(arr, el);
             if (distinct || c.valid.nullOrUndefined(distinct))
                 c.arrays.unique(arr);
             return arr;
@@ -793,6 +809,38 @@
                 else if (useIndex) map[index] = d;
             });
             return map;
+        },
+
+        /**
+         * 数组列表分组
+         * @param arr {Array} 数组列表
+         * @param key {string|function(el:*,index:number, arr:Array):string} (函数需返回)分组属性名, 相同值将分为同一组
+         * @param [useUndefinedKey=false] {boolean} true-数组元素不存在指定属性时任然保留, undefined|false-过滤不存在指定属性(或返回null|undefined)的元素
+         * @return {*} K:string - 指定属性值, V:Array - 与K匹配的元素列表
+         */
+        group: function (arr, key, useUndefinedKey) {
+            if (!c.valid.isArray(arr)) throw new Error('参数arr不是一个Array类型');
+
+            var keyFn;
+            if (c.valid.isFunction(key)) keyFn = key;
+            else if (c.valid.isString(key)) keyFn = function (el) {
+                if (c.valid.nullOrUndefined(el))
+                    return undefined;
+                return el[key];
+            };
+            else throw new Error('参数key无效, 可接受类型: {string|function(el, index, arr):string|*}');
+
+            var group = {};
+            c.common.each(arr, function (el, index) {
+                var groupKey = keyFn(el, index, arr);
+                if (c.valid.nullOrUndefined(groupKey) && !useUndefinedKey)
+                    return;
+                groupKey += '';
+                var list = group[groupKey] = group[groupKey] || [];
+                list.push(el);
+            });
+
+            return group;
         },
 
         /**
