@@ -120,6 +120,7 @@
         table_header_cell: {value: 'jsu-table-header-cell'},
         table_body: {value: 'jsu-table-body'},
         table_row: {value: 'jsu-table-row'},
+        table_row_hover: {value: 'jsu-table-row-hover'},
         table_cell: {value: 'jsu-table-cell'},
         table_empty_row: {value: 'jsu-table-empty-row'},
         empty_td: {value: 'jsu-table-empty-td'},
@@ -138,11 +139,12 @@
         swapper_action: {value: 'jsu-swapper-action'},
         fixed_header_container: {value: 'jsu-fixed-header-container'},
         fixed_left_header_container: {value: 'jsu-fixed-left-header-container'},
+        fixed_left_top_header_container: {value: 'jsu-fixed-left-top-header-container'},
         pager_container: {value: 'jsu-table-pager-container'},
         hide: {value: 'jsu-table-hide_impl'},
         scrolling: {value: 'jsu-table-scrolling'},
         scrolling_down: {value: 'jsu-table-scrolling-down'},
-        scrolling_right: {value: 'jsu-table-scrolling-right'},
+        scrolling_right: {value: 'jsu-table-scrolling-right'}
     });
 
     // 自定义HTML属性名
@@ -153,6 +155,12 @@
         editable_template: {value: 'data-writable'},
         column_activator_from_x: {value: 'data-from-x'},
         column_activator_to_x: {value: 'data-to-x'}
+    });
+
+    // 其他常量
+    Object.defineProperties(Table.otherFinalKey = {}, {
+        scroll_width: {value: 18},
+        scroll_height: {value: 18}
     });
 
     /**
@@ -574,7 +582,7 @@
                 var $leftContainer = conf.templates.$left.parent();
                 if (hasScroll) {
                     var maxHeight = parseFloat($(parent).css('max-height'));
-                    $leftContainer.css('max-height', maxHeight - 15);
+                    $leftContainer.css('max-height', maxHeight - Table.otherFinalKey.scroll_height);
                 }
             })();
 
@@ -606,7 +614,7 @@
                 conf.templates.$bounds[fnName](Table.style.scrolling_right);
                 if (conf.templates.$left) {
                     c.common.timer(function () {
-                        conf.templates.$left.parent().css({'padding-right': 5.0});
+                        conf.templates.$left.parent().css({'padding-right': 5.00001});
                         c.common.timer(function () {
                             conf.templates.$left.parent().css({'padding-right': 5});
                         });
@@ -734,23 +742,42 @@
             c.$common.uniqueDelegate(conf.templates.$bounds, rowClassSelector, 'mouseenter', function (e) {
                 var
                     $row = $(this),
+                    rowIndex = $row.index(),
                     rowDataKey = $row.attr(Table.defineHtmlKey.row_data_key),
                     row = conf.uniqueIndexedData[rowDataKey];
+
+                mouseenter(conf.templates.$main);
+                mouseenter(conf.templates.$left);
+
                 if (!$row.hasClass(Table.style.table_empty_row)) {
                     Table.logger && Table.logger.info('鼠标进入表格行');
                     c.common.apply(conf.events.mouseEnter, $row, row, e, $row);
+                }
+
+                function mouseenter($table) {
+                    $($table).find('>' + rowClassSelector).removeClass(Table.style.table_row_hover)
+                        .eq(rowIndex).addClass(Table.style.table_row_hover);
                 }
             });
             c.$common.uniqueDelegate(conf.templates.$bounds, rowClassSelector, 'mouseleave', function (e) {
                 var
                     $row = $(this),
+                    rowIndex = $row.index(),
                     rowDataKey = $row.attr(Table.defineHtmlKey.row_data_key),
                     row = conf.uniqueIndexedData[rowDataKey];
                 if (!$row.hasClass(Table.style.table_empty_row)) {
                     Table.logger && Table.logger.info('鼠标离开表格行');
                     c.common.apply(conf.events.mouseLeave, $row, row, e, $row);
                 }
+
+                mouseLeave(conf.templates.$main);
+                mouseLeave(conf.templates.$left);
                 checkScroll(conf);
+
+                function mouseLeave($table) {
+                    $($table).find('>' + rowClassSelector)
+                        .eq(rowIndex).removeClass(Table.style.table_row_hover);
+                }
             });
             c.$common.uniqueDelegate(conf.templates.$bounds, rowClassSelector, 'click', function (e) {
                 c.$common.stopPropagation(e);
@@ -1203,12 +1230,6 @@
                 var $topContainer = $('<div>').addClass(Table.style.fixed_header_container).appendTo(conf.templates.$bounds);
                 conf.templates.$top = $('<table>').addClass(Table.style.table).appendTo($topContainer);
                 createHeaders(conf, conf.templates.$top);
-
-                // 右侧滚动条修复列
-                var
-                    $header = conf.templates.$top.find('>.' + Table.style.table_header),
-                    $row = $header.find('.' + Table.style.table_header_row);
-                $('<td>').addClass(Table.style.table_header_cell).appendTo($row);
             })();
 
         // 左侧固定列视图
@@ -1223,9 +1244,27 @@
                     $head = $('<thead>').appendTo(conf.templates.$left).addClass(Table.style.table_header),
                     $row = $('<tr>').appendTo($head).addClass(Table.style.table_header_row);
                 c.common.each(conf.fixedHeaders.left, function (headConf) {
-                    var $th = createHeader(headConf).width(headConf.width);
-                    $row.append($th);
+                    createHeader(headConf).width(headConf.width).appendTo($row);
                 });
+
+                // 左侧固定同时支持表头固定
+                if (0 < conf.maxHeight) {
+                    var
+                        $topContainer = $('<div>').addClass(Table.style.fixed_left_top_header_container).appendTo(conf.templates.$bounds),
+                        $table = $('<table>').addClass(Table.style.table).appendTo($topContainer);
+                    $topContainer.width(conf.templates.$left.parent()).css({
+                        position: 'absolute',
+                        left: 0,
+                        top: 0
+                    });
+
+                    var
+                        $topHead = $('<thead>').appendTo($table).addClass(Table.style.table_header),
+                        $topRow = $('<tr>').appendTo($topHead).addClass(Table.style.table_header_row);
+                    c.common.each(conf.fixedHeaders.left, function (headConf) {
+                        createHeader(headConf).width(headConf.width).appendTo($topRow);
+                    });
+                }
             }());
 
         // TODO 右侧固定视图
@@ -1282,13 +1321,9 @@
         if (conf.templates.$top)
             (function () {
                 conf.templates.$top.width(conf.templates.$main.width());
-                conf.templates.$top.parent().css({overflow: 'hidden'});
+                conf.templates.$top.parent().css({overflow: 'hidden'}).width(conf.templates.$main.parent().width() - Table.otherFinalKey.scroll_width);
 
                 var $headers = conf.templates.$top.find('.' + Table.style.table_header + ' .' + Table.style.table_header_cell);
-
-                // 最后一列是滚动条调整列无需指定宽度
-                delete $headers[$headers.length - 1];
-                $headers.length -= 1;
 
                 // 倒数第二列自动调整宽度无需指定
                 var $lastHeader = $($headers[$headers.length - 1]);
