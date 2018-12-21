@@ -29,7 +29,7 @@
 <body>
 <h1>测试单表格基础功能</h1>
 <div class="grid grid_2">
-    <table class="table" data-max-height="150">
+    <table class="table">
         <thead>
         <tr>
             <th data-type="index" data-text="索引"></th>
@@ -109,19 +109,16 @@
 
         // logger.info(table1);
         logger.info(table);
-        var data = [{
-            name: 'name_1',
-            gender: 'MALE',
-            date: new Date().getTime(),
-            note: '我是<b>加粗</b>内容',
-            birthday: new Date().getTime()
-        }, {
-            name: 'name_2',
-            gender: 'FEMALE',
-            date: new Date().getTime() + 1000000,
-            note: '我是<b>加粗</b>内容',
-            birthday: new Date().getTime()
-        }];
+        var data = [];
+        for (var i = 0; i < 15; i++) {
+            data.push({
+                name: 'name_' + (i + 1),
+                gender: 'MALE',
+                date: new Date().getTime(),
+                note: '我是<b>加粗</b>内容',
+                birthday: new Date().getTime()
+            });
+        }
 
         table.events({
             cellReady: function () {
