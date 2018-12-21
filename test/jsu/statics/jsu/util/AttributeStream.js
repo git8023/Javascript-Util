@@ -21,6 +21,9 @@
      * @constructor
      */
     function AttributeStream(obj) {
+        this.target = obj;
+        this._next = null;
+        this.handler = null;
     }
 
     /**
@@ -54,6 +57,10 @@
      * 开始处理
      */
     AttributeStream.prototype.start = function () {
+        var node;
+        while ((node = this.next())) {
+
+        }
     };
 
     /**
@@ -90,10 +97,39 @@
      * @constructor
      */
     function ObjectAttributeStream(obj) {
+        var args = c.common.argumentsAsArray(arguments);
+        c.AttributeStream.apply(this, args);
     }
 
-    ObjectAttributeStream.prototype = new c.AttributeStream(ObjectAttributeStream);
+    ObjectAttributeStream.prototype = new c.AttributeStream(null);
 
+
+    /**
+     * 注册节点获取器, Object默认使用可枚举属性遍历, Array通过length属性遍历
+     * @param nextFn {function(node:AttributeNode):?node|undefined} 下个流节点, 返回undefined中断
+     * @return {AttributeStream}
+     */
+    AttributeStream.prototype.next = function (nextFn) {
+        return this;
+    };
+
+    /**
+     * 注册节点处理器
+     * @param handler {function(node:AttributeNode):?boolean} 处理器, 返回false中断
+     * @return {AttributeStream}
+     */
+    AttributeStream.prototype.handle = function (handler) {
+        return this;
+    };
+
+    /**
+     * 对象类型识别
+     * @param obj {*} 目标对象
+     * @return {boolean} true-可以处理该对象, false-不能处理该对象
+     */
+    AttributeStream.prototype.discern = function (obj) {
+        return false;
+    };
 })(window.jsu = (window.jsu || {}));
 
 

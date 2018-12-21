@@ -1,7 +1,7 @@
 /*
  * 日志输出
  */
-(function (c) {
+;(function (c) {
     'use strict';
     c.Logger = Logger;
     Logger.logger = new Logger('Logger');
@@ -19,33 +19,31 @@
         this.tag = tag;
     }
 
-    apis(Logger.prototype);
-    apis(Logger);
-
-    function apis(obj) {
-        Object.defineProperties(obj, {
-            log: {
-                get: function () {
-                    return createPrinter.call(this, '  LOG');
-                }
-            },
-            info: {
-                get: function () {
-                    return createPrinter.call(this, ' INFO');
-                }
-            },
-            warn: {
-                get: function () {
-                    return createPrinter.call(this, ' WARN');
-                }
-            },
-            error: {
-                get: function () {
-                    return createPrinter.call(this, 'ERROR');
-                }
+    var propertiesDefine = {
+        log: {
+            get: function () {
+                return createPrinter.call(this, '  LOG');
             }
-        });
-    }
+        },
+        info: {
+            get: function () {
+                return createPrinter.call(this, ' INFO');
+            }
+        },
+        warn: {
+            get: function () {
+                return createPrinter.call(this, ' WARN');
+            }
+        },
+        error: {
+            get: function () {
+                return createPrinter.call(this, 'ERROR');
+            }
+        }
+    };
+    Object.defineProperties(Logger, propertiesDefine);
+    Object.defineProperties(Logger.prototype, propertiesDefine);
+
 
     /**
      * 创建打印机

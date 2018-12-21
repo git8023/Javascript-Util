@@ -160,7 +160,7 @@
     // 其他常量
     Object.defineProperties(Table.otherFinalKey = {}, {
         scroll_width: {value: 18},
-        scroll_height: {value: 18}
+        scroll_height: {value: 17}
     });
 
     /**
@@ -596,9 +596,11 @@
     function activeRegisterEvents(conf) {
         var style = Table.style;
 
-        // 主视图滚动事件
+        // 滚动事件
         (function () {
+            var disableMainScrollEvent = false;
             conf.templates.$main.parent().scroll(function () {
+                if (disableMainScrollEvent) return;
                 var $this = $(this);
 
                 // 已经向下滚动
@@ -621,6 +623,21 @@
                     });
                     conf.templates.$left.parent().scrollTop($this.scrollTop());
                 }
+            }).mouseenter(function () {
+                disableMainScrollEvent = false;
+            }).mouseleave(function () {
+                disableMainScrollEvent = true;
+            });
+            conf.templates.$left.parent().scroll(function () {
+                if (!disableMainScrollEvent) return;
+                var $this = $(this);
+                var fnName = (0 < $this.scrollTop()) ? 'addClass' : 'removeClass';
+                conf.templates.$bounds[fnName](Table.style.scrolling_down);
+                conf.templates.$main.parent().scrollTop($this.scrollTop())
+            }).mouseenter(function () {
+                disableMainScrollEvent = true;
+            }).mouseleave(function () {
+                disableMainScrollEvent = false;
             });
         })();
 
