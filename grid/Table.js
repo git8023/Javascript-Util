@@ -294,7 +294,7 @@
             }
         });
 
-        // FIXME 存在展开列时， 暂不支持左右固定
+        // 存在展开列时， 暂不支持左右固定
         if (hasExpandColumn && (conf.fixedHeaders.left.length || conf.fixedHeaders.right.length))
             throw new Error('当前版本暂不支持同时配置 expand 和 data-fixed="left|right"');
 
@@ -846,18 +846,23 @@
                     rowDataKey = $row.attr(Table.defineHtmlKey.row_data_key),
                     row = conf.uniqueIndexedData[rowDataKey];
 
-                mouseenter(conf.templates.$main);
-                mouseenter(conf.templates.$left);
-                mouseenter(conf.templates.$right);
+
+                mouseEnter(conf.templates.$main);
+                mouseEnter(conf.templates.$left);
+                mouseEnter(conf.templates.$right);
 
                 if (!$row.hasClass(Table.style.table_empty_row)) {
                     Table.logger && Table.logger.info('鼠标进入表格行');
                     c.common.apply(conf.events.mouseEnter, $row, row, e, $row);
                 }
 
-                function mouseenter($table) {
-                    $($table).find('>' + rowClassSelector).removeClass(Table.style.table_row_hover)
-                        .eq(rowIndex).addClass(Table.style.table_row_hover);
+                function mouseEnter($table) {
+                    if ($table) {
+                        var
+                            $rows = $($table).find('>.' + Table.style.table_body + '>tr').removeClass(Table.style.table_row_hover),
+                            $row = $rows.eq(rowIndex);
+                        $row.addClass(Table.style.table_row_hover);
+                    }
                 }
             });
             c.$common.uniqueDelegate(conf.templates.$bounds, rowClassSelector, 'mouseleave', function (e) {
@@ -877,26 +882,33 @@
                 checkScroll(conf);
 
                 function mouseLeave($table) {
-                    $($table).find('>' + rowClassSelector)
-                        .eq(rowIndex).removeClass(Table.style.table_row_hover);
+                    if ($table)
+                        $($table).find(rowClassSelector).eq(rowIndex).removeClass(Table.style.table_row_hover);
                 }
             });
             c.$common.uniqueDelegate(conf.templates.$bounds, rowClassSelector, 'click', function (e) {
+                Table.logger && Table.logger.info('点击表格行');
                 c.$common.stopPropagation(e);
                 var
                     $row = $(this),
                     rowDataKey = $row.attr(Table.defineHtmlKey.row_data_key),
                     row = conf.uniqueIndexedData[rowDataKey];
                 if (!$row.hasClass(Table.style.table_empty_row))
-                    return;
-
-                var eventBubble = (false !== c.common.apply(conf.events.click, $row, row, e, $row));
-                if (eventBubble) {
-                    Table.logger && Table.logger.info('点击表格行');
-                    $(this).find('.' + Table.style.selection).click();
+                    c.common.apply(conf.events.rowClick, $row, row, e, $row);
+            });
+            c.$common.uniqueDelegate(conf.templates.$bounds, rowClassSelector + '>.' + Table.style.table_cell, 'click', function (e) {
+                Table.logger && Table.logger.info('点击单元格');
+                c.$common.stopPropagation(e);
+                var
+                    $cell = $(this),
+                    $row = $cell.parent(),
+                    rowDataKey = $row.attr(Table.defineHtmlKey.row_data_key),
+                    row = conf.uniqueIndexedData[rowDataKey];
+                if (!$row.hasClass(Table.style.table_empty_row)) {
+                    if (false !== c.common.apply(conf.events.cellClick, $cell, row, e, $cell))
+                        $row.click();
                 }
             });
-            // TODO 单元格点击事件
         })();
 
         // 功能列
@@ -932,12 +944,6 @@
                             c.common.apply(conf.events.expandOpened, $row, row, $expandRow, e, $row);
                         }, 50);
                         Table.logger && Table.logger.log('添加扩展模板');
-
-                        // FIXME 两侧固定列与 expand 类型无法同步
-                        // if (conf.templates.$left) {
-                        //     var $leftRow = conf.templates.$left.find('.' + Table.style.table_body + '>.' + Table.style.table_row).eq($row.index());
-                        //     $leftRow.after($expandRow.clone());
-                        // }
                     }
                 } else {
                     // 关闭逻辑
@@ -1028,7 +1034,6 @@
                 } catch (e) {
                     var defaultValue = $this.attr(Table.defineHtmlKey.editable_previous_value);
                     $this.val(defaultValue);
-                    // TODO 这里需要给用户预留错误处理事件
                     throw e;
                 }
             });
@@ -1734,13 +1739,14 @@
             expandIndexedCache: {}, // 展开行缓存: K-RowDataUniqueIndex,V-jQuery,
             selectionDataUniqueIndex: [],      // 选中的数据索引
             events: {
-                cellReady: null,    // 单元格准备就绪, 挂载到行视图前
-                rowReady: null,     // 行视图准备就绪, 挂载到表格控件前
-                updated: null,      // 表格刷新后
-                mouseEnter: null,   // 鼠标进入数据行
-                mouseLeave: null,   // 鼠标离开数据行
-                click: null,        // 点击数据行
-                action: null,       // 选中数据行
+                cellReady: null,            // 单元格准备就绪, 挂载到行视图前
+                rowReady: null,             // 行视图准备就绪, 挂载到表格控件前
+                updated: null,              // 表格刷新后
+                mouseEnter: null,           // 鼠标进入数据行
+                mouseLeave: null,           // 鼠标离开数据行
+                rowClick: null,             // 行点击数据行
+                cellClick: null,            // 单元格点击数据行
+                action: null,               // 选中数据行
                 expandOpen: null,           // 扩展行打开前
                 expandOpened: null,         // 扩展行打开后
                 expandClose: null,          // 扩展行关闭前
