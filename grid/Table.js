@@ -150,7 +150,9 @@
         scrolling_horizontal: {value: 'jsu-table-scrolling-horizontal'},
         scrolling_down: {value: 'jsu-table-scrolling-down'},
         scrolling_right: {value: 'jsu-table-scrolling-right'},
-        scroll_to_right: {value: 'jsu-table-scroll-to-right'}
+        scroll_to_right: {value: 'jsu-table-scroll-to-right'},
+
+        overflow_x: {value: 'jsu-table-overflow-x'}
     });
 
     // 自定义HTML属性名
@@ -344,7 +346,7 @@
             activeColumnWidthModifier(conf);
             checkScroll(conf);
             $widthModifier.removeClass(Table.style.hide);
-        }, 100);
+        });
 
         // 填充左侧固定视图
         if (conf.templates.$left)
@@ -1232,6 +1234,9 @@
             $cell.html($editable);
         }
 
+        if (headConf.width)
+            $cell.addClass(Table.style.overflow_x);
+
         return $cell;
     }
 
@@ -1410,7 +1415,8 @@
             $row = $('<tr>').appendTo($head).addClass(Table.style.table_header_row);
         c.common.each(conf.headers, function (headConf) {
             var $th = createHeader(headConf);
-            $th.width(headConf.width || 100);
+            if (headConf.width)
+                $th.width(headConf.width);
             $row.append($th);
         });
     }
@@ -1474,10 +1480,39 @@
             (function () {
                 jsu.common.each(conf.fixedHeaders.left, function (headConf, index) {
                     var
-                        $th = conf.templates.$left.find('.' + Table.style.table_header_row + ':first>.' + Table.style.table_header_cell + ':eq(' + index + ')'),
-                        $mainTh = conf.templates.$main.find('.' + Table.style.table_header_row + ':first>.' + Table.style.table_header_cell + ':eq(' + index + ')');
+                        $th = conf.templates.$left.find('.' + Table.style.table_header_row + ':first>.' + Table.style.table_header_cell).eq(index),
+                        $topTh = conf.templates.$bounds.find('.' + Table.style.fixed_left_top_header_container).find('.' + Table.style.table_header_row + ':first>.' + Table.style.table_header_cell).eq(index),
+                        $mainTh = conf.templates.$main.find('.' + Table.style.table_header_row + ':first>.' + Table.style.table_header_cell).eq(index);
                     $th.width($mainTh.width());
                     $th.height($mainTh.height());
+                    $topTh.width($mainTh.width());
+                    $topTh.height($mainTh.height());
+                });
+                // 行高与主视图一致
+                var rowSelector = '>.' + Table.style.table_body + '>.' + Table.style.table_row;
+                conf.templates.$main
+                    .find(rowSelector + '[' + Table.defineHtmlKey.row_data_key + ']')
+                    .each(function (index) {
+                        var $row = conf.templates.$left.find(rowSelector).eq(index);
+                        $row.height($(this).height());
+                    });
+            })();
+
+        // 右侧固定
+        if (0 < conf.fixedHeaders.right.length)
+            (function () {
+                var
+                    headerLen = conf.headers.length,
+                    offset = headerLen - conf.fixedHeaders.right.length;
+                jsu.common.each(conf.fixedHeaders.right, function (headConf, index) {
+                    var
+                        $th = conf.templates.$right.find('.' + Table.style.table_header_row + ':first>.' + Table.style.table_header_cell).eq(index),
+                        $topTh = conf.templates.$bounds.find('.' + Table.style.fixed_right_top_header_container + ' .' + Table.style.table_header_row + ':first>.' + Table.style.table_header_cell).eq(index),
+                        $mainTh = conf.templates.$main.find('.' + Table.style.table_header_row + ':first>.' + Table.style.table_header_cell).eq(offset + index);
+                    $th.width($mainTh.width());
+                    $th.height($mainTh.height());
+                    $topTh.width($mainTh.width());
+                    $topTh.height($mainTh.height());
                 });
                 // 行高与主视图一致
                 var rowSelector = '>.' + Table.style.table_body + '>.' + Table.style.table_row;
@@ -1537,6 +1572,8 @@
         if (headConfig.width && 0 >= headConfig.width) {
             Table.logger.warn('data-width配置无效, 必须是大于0[' + headConfig.width + ']');
             headConfig.width = null;
+        } else {
+            headConfig.width = +headConfig.width || null;
         }
 
         // [data-writable]

@@ -34,41 +34,41 @@
 <body>
 <h1>表格功能测试2</h1>
 <div class="grid grid_2">
-    <table class="table">
+    <table class="table" data-max-height="400">
         <thead>
         <tr>
             <th data-type="index" data-text></th>
-            <th data-type="expand" data-width="100">
-                <!-- 展开行模板 -->
-                <div data-expand>
-                    <table class="table" style="color:#AAA; display:none;">
-                        <thead>
-                        <tr>
-                            <th data-type="selection" data-selection="radio"></th>
-                            <th data-type="text" data-prop="name">文本</th>
-                            <th data-type="html" data-prop="note" data-writable>编辑简介</th>
-                            <th data-type="date" data-prop="date" data-date-format="yyyy-MM-dd hh:mm:ss:S"
-                                data-writable>编辑注册时间
-                            </th>
-                            <th data-type="enum" data-prop="gender" data-writable data-enum='{"MALE":"男","FEMALE":"女"}'
-                                data-text="性别"></th>
-                            <th data-type="enum" data-prop="gender" data-writable data-enum='{"MALE":"男","FEMALE":"女"}'
-                                data-text="编辑性别">
-                                <div data-writable>
-                                    <label>
-                                        <select name>
-                                            <option value="MALE">男</option>
-                                            <option value="FEMALE">女</option>
-                                        </select>
-                                    </label>
-                                </div>
-                            </th>
-                        </tr>
-                        </thead>
-                    </table>
-                </div>
-            </th>
-            <th data-type="selection" data-selection="checkbox"></th>
+            <!--<th data-type="expand" data-width="100">-->
+                <!--&lt;!&ndash; 展开行模板 &ndash;&gt;-->
+                <!--<div data-expand>-->
+                    <!--<table class="table" style="color:#AAA; display:none;">-->
+                        <!--<thead>-->
+                        <!--<tr>-->
+                            <!--<th data-type="selection" data-selection="radio"></th>-->
+                            <!--<th data-type="text" data-prop="name">文本</th>-->
+                            <!--<th data-type="html" data-prop="note" data-writable>编辑简介</th>-->
+                            <!--<th data-type="date" data-prop="date" data-date-format="yyyy-MM-dd hh:mm:ss:S"-->
+                                <!--data-writable>编辑注册时间-->
+                            <!--</th>-->
+                            <!--<th data-type="enum" data-prop="gender" data-writable data-enum='{"MALE":"男","FEMALE":"女"}'-->
+                                <!--data-text="性别"></th>-->
+                            <!--<th data-type="enum" data-prop="gender" data-writable data-enum='{"MALE":"男","FEMALE":"女"}'-->
+                                <!--data-text="编辑性别">-->
+                                <!--<div data-writable>-->
+                                    <!--<label>-->
+                                        <!--<select name>-->
+                                            <!--<option value="MALE">男</option>-->
+                                            <!--<option value="FEMALE">女</option>-->
+                                        <!--</select>-->
+                                    <!--</label>-->
+                                <!--</div>-->
+                            <!--</th>-->
+                        <!--</tr>-->
+                        <!--</thead>-->
+                    <!--</table>-->
+                <!--</div>-->
+            <!--</th>-->
+            <th data-type="selection" data-selection="checkbox" data-fixed="left"></th>
             <th data-type="text" data-prop="name">文本</th>
             <th data-type="enum" data-prop="gender" data-enum='{"MALE":"男","FEMALE":"女"}'>枚举</th>
             <th data-type="date" data-prop="date" data-date-format="yyyy-MM-dd hh:mm:ss:S" data-text="注册时间"></th>
@@ -87,7 +87,7 @@
                     </label>
                 </div>
             </th>
-            <th data-type="template" data-text="操作" data-width="400">
+            <th data-type="template" data-text="操作" data-fixed="right">
                 <!--单元格内容模板-->
                 <div data-template>
                     <a href="javascript:" class="row-data">Get Data</a>
