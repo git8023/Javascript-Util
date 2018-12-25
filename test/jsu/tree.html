@@ -25,6 +25,7 @@
     <button id="expandByKey">Expand By Data Key</button>
     <button id="getExpandData">Get Expand Data</button>
     <button id="activateNode">Activate Node</button>
+    <button id="getActivateNode">Get Activate Node</button>
     <button id="clearActivateNodes">Clear Activate Nodes</button>
 </div>
 
@@ -57,16 +58,12 @@
                 text: '节点 - 2',
                 children: [
                     {text: '节点 - 2-1'},
-                    {text: '节点 - 2-2'},
                     {
-                        text: '节点 - 2-3',
+                        text: '节点 - 2-2',
                         children: [
                             {text: '节点 - 2-3-1'},
                             {text: '节点 - 2-3-2'},
-                            {
-                                text: '节点 - 2-3-3',
-                                children: []
-                            }
+                            {text: '节点 - 2-3-3'}
                         ]
                     }
                 ]
@@ -91,6 +88,9 @@
             // logger.info('已选中节点', tree.activateNode({text: '节点 - 2'}, 'text'));      // 一级
             // logger.info('已选中节点', tree.activateNode({text: '节点 - 2-3'}, 'text')); // 二级
             logger.info('已选中节点', tree.activateNode({text: '节点 - 2-3-3'}, 'text'));   // 三级
+        });
+        $('#getActivateNode').click(function () {
+            logger.info('已选中节点', tree.activateNode());
         });
         $('#clearActivateNodes').click(function () {
             logger.info('已选中节点', tree.activateNode([]));

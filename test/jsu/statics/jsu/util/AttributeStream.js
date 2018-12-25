@@ -109,7 +109,7 @@
      * @param nextFn {function(node:AttributeNode):?node|undefined} 下个流节点, 返回undefined中断
      * @return {AttributeStream}
      */
-    AttributeStream.prototype.next = function (nextFn) {
+    ObjectAttributeStream.prototype.next = function (nextFn) {
         return this;
     };
 
@@ -118,7 +118,7 @@
      * @param handler {function(node:AttributeNode):?boolean} 处理器, 返回false中断
      * @return {AttributeStream}
      */
-    AttributeStream.prototype.handle = function (handler) {
+    ObjectAttributeStream.prototype.handle = function (handler) {
         return this;
     };
 
@@ -127,7 +127,7 @@
      * @param obj {*} 目标对象
      * @return {boolean} true-可以处理该对象, false-不能处理该对象
      */
-    AttributeStream.prototype.discern = function (obj) {
+    ObjectAttributeStream.prototype.discern = function (obj) {
         return false;
     };
 })(window.jsu = (window.jsu || {}));

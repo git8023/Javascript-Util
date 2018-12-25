@@ -846,7 +846,6 @@
                     rowDataKey = $row.attr(Table.defineHtmlKey.row_data_key),
                     row = conf.uniqueIndexedData[rowDataKey];
 
-
                 mouseEnter(conf.templates.$main);
                 mouseEnter(conf.templates.$left);
                 mouseEnter(conf.templates.$right);

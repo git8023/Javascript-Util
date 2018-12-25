@@ -307,11 +307,11 @@
 
             var filter;
             if (c.valid.isArray(keys))
-                filter = function (v, k, o) {
+                filter = function (v, k) {
                     return -1 !== keys.indexOf(k);
                 };
             if (!c.valid.isFunction(filter))
-                keys = function () {
+                filter = function () {
                     return true;
                 };
 
@@ -341,33 +341,82 @@
         /**
          * 获取第一个与v相同值的key
          * @param o {Object} 对象
-         * @param v {Object|function(ov:*):boolean} 参考值, 或函数返回true表示找到
+         * @param v {Object|function(ov:*, k:number|string, o:*):boolean} 参考值或函数返回true表示找到
          * @return {undefined|*} 第一个匹配到的属性名(与顺序无关)
          */
         getKeyByValue: function (o, v) {
-            if (c.valid.nullOrUndefined(o))
-                throw '参数o不是Object类型';
-
+            if (c.valid.nullOrUndefined(o)) throw '参数o不是Object类型';
             var predicate = v;
-            if (c.valid.nullOrUndefined(v))
-                predicate = function (ov) {
-                    return c.valid.nullOrUndefined(ov);
-                };
-            else if (!c.valid.isFunction(v))
-                predicate = function (ov) {
-                    return ov === v;
-                };
+            if (c.valid.nullOrUndefined(v)) predicate = function (ov) {
+                return c.valid.nullOrUndefined(ov);
+            };
+            else if (!c.valid.isFunction(v)) predicate = function (ov) {
+                return ov === v;
+            };
 
             var ret = undefined;
             c.common.each(o, function (ov, k) {
-                if (true === predicate(ov)) {
+                if (true === predicate(ov, k, o)) {
                     ret = k;
                     return false;
                 }
             });
             return ret;
-        }
+        },
 
+        /**
+         * 指定值获取拥有该值的属性名列表
+         * @param o {*} 对象
+         * @param v {Object|function(v:*,k:number|string,o:*):boolean} 参考值或函数返回true表示找到
+         * @return {Array}
+         */
+        getKeysByValue: function (o, v) {
+            if (c.valid.nullOrUndefined(o)) throw '参数o不是Object类型';
+            var predicate = v;
+            if (c.valid.nullOrUndefined(v)) predicate = function (ov) {
+                return c.valid.nullOrUndefined(ov);
+            };
+            else if (!c.valid.isFunction(v)) predicate = function (ov) {
+                return ov === v;
+            };
+
+            var keys = [];
+            c.common.each(o, function (v, k) {
+                if (true === predicate(v, k, o)) keys.push(k);
+            });
+            return keys;
+        },
+
+        /**
+         * 删除对象指定属性名
+         * @param o {*} 对象
+         * @param keys {Object|Array|function(v:*,k:*,o:*):boolean}
+         * @return {*|undefined} 成功移除的属性
+         */
+        removeKeys: function (o, keys) {
+            if (c.valid.nullOrUndefined(o)) throw '参数o不是Object类型';
+            if (c.valid.nullOrUndefined(keys)) throw '参数keys必须是Object|Array|Function类型';
+
+            var predicate;
+            if (c.valid.isFunction(keys)) predicate = keys;
+            else {
+                if (!c.valid.isArray(keys)) keys = [keys];
+                predicate = function (v, k) {
+                    return -1 !== keys.indexOf(k);
+                }
+            }
+
+            var ret = {}, optionSuccess = false;
+            c.common.each(o, function (v, k) {
+                if (true === predicate(v, k, o)) {
+                    ret[k] = v;
+                    delete o[k];
+                    optionSuccess = true;
+                }
+            });
+            if (optionSuccess)
+                return ret;
+        }
     });
 })(window.jsu = (window.jsu || {}));
 

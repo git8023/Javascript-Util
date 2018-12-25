@@ -1,9 +1,3 @@
-/**
- * 1. 编辑
- * TODO 2. 删除
- * TODO 3. 禁用/启用展开
- * TODO 4. 禁用/启用选中
- */
 ;(function (c) {
     'use strict';
 
@@ -38,7 +32,8 @@
 
         editor: {value: 'jsu-tree-activate-editor'},
         delete: {value: 'jsu-tree-activate-delete'},
-        append: {value: 'jsu-tree-activate-append'}
+        append: {value: 'jsu-tree-activate-append'},
+        node_open: {value: 'jsu-tree-node-open'}
     });
 
     // 创建相关
@@ -55,7 +50,7 @@
         },
         node: {
             value: function (conf, node) {
-                var $node = $('<div>').addClass(Tree.style.node).addClass(Tree.readers.class(node));
+                var $node = $('<div>').addClass(Tree.style.node).addClass(Tree.reader.class(node));
                 $node.attr(Tree.defineHtmlKey.node_key, c.objects.getKeyByValue(conf.dataSet.dataMap, node));
                 $node.append(Tree.creator.title(conf, node));
                 return $node;
@@ -88,7 +83,7 @@
                 $title.append($loading);
 
                 // 文本
-                var $text = $('<span>', {html: Tree.readers.text(node)})
+                var $text = $('<span>', {html: Tree.reader.text(node)})
                     .addClass(Tree.style.text);
                 $title.append($text);
 
@@ -99,7 +94,7 @@
             }
         },
         other: {
-            value: function (conf) {
+            value: function (conf, node) {
                 var
                     $other = $('<span>').addClass(Tree.style.other),
                     $c = $('<div>').addClass(Tree.style.other_container).appendTo($other);
@@ -115,7 +110,7 @@
         children: {
             value: function (conf, node, $node) {
                 var $children = $('<div>').addClass(Tree.style.children);
-                c.common.each(Tree.readers.children(node), function (childNode) {
+                c.common.each(Tree.reader.children(node), function (childNode) {
                     Tree.creator.node(conf, childNode).appendTo($children);
                 });
                 $children.appendTo($node);
@@ -131,7 +126,7 @@
     });
 
     //  数据获取相关
-    Object.defineProperties(Tree.readers = {}, {
+    Object.defineProperties(Tree.reader = {}, {
         text: {
             value: function (node) {
                 return c.strings.trim(node['text'] || '');
@@ -257,7 +252,6 @@
             Tree.logger && Tree.logger.warn('树控件数据必须是Array实例: ', Object.prototype.toString.call(data));
             return;
         }
-
 
         var backup = conf.dataSet.data;
         try {
@@ -444,7 +438,7 @@
             if (c.valid.isObject(parentNode))
                 conf.dataSet.upperLevel[key] = c.objects.getKeyByValue(conf.dataSet.dataMap, parentNode);
 
-            var children = Tree.readers.children(node);
+            var children = Tree.reader.children(node);
             if (c.valid.isArray(children)) {
                 c.common.each(children, function (_node) {
                     cache(_node, node);
@@ -465,18 +459,19 @@
                 $node = $this.parents('.' + Tree.style.node + ':first'),
                 nodeKey = $node.attr(Tree.defineHtmlKey.node_key),
                 node = conf.dataSet.dataMap[nodeKey];
-
             var isAppend = (-1 === conf.dataSet.expand.indexOf(nodeKey));
             Tree.logger && Tree.logger.log('点击节点 >> ', node, isAppend ? 'CLOSE' : 'EXPAND');
 
             if (isAppend) {
                 expandChildren(conf, nodeKey);
             } else if (false !== c.common.apply(conf.events.beforeClose, this, node, $node)) {
-                removeExpandByParent(conf, nodeKey);
+                // removeExpandByParent(conf, nodeKey);
+                c.arrays.remove(conf.dataSet.expand, nodeKey);
                 $node.find('>.' + Tree.style.children + ':first').slideUp(200, function () {
-                    $(this).remove();
+                    // $(this).remove();
                     c.common.apply(conf.events.afterClose, this, node, $node)
                 });
+                $node.removeClass(Tree.style.node_open);
                 Tree.logger && Tree.logger.log('关闭子节点', node, conf.dataSet.expand);
             } else {
                 Tree.logger && Tree.logger.log('阻止关闭子节点', node, conf.dataSet.expand);
@@ -542,7 +537,7 @@
                 nodeKey = $node.attr(Tree.defineHtmlKey.node_key),
                 node = conf.dataSet.dataMap[nodeKey];
 
-            var $editor = $('<input>', {value: Tree.readers.text(node)}).addClass(Tree.style.editing)
+            var $editor = $('<input>', {value: Tree.reader.text(node)}).addClass(Tree.style.editing)
                 .click(function (e) {
                     c.$common.stopPropagation(e);
                 })
@@ -565,37 +560,39 @@
                 $node = $(this).parents('[' + Tree.defineHtmlKey.node_key + ']:first'),
                 nodeKey = $node.attr(Tree.defineHtmlKey.node_key),
                 node = conf.dataSet.dataMap[nodeKey];
-            Tree.logger && Tree.logger.log('删除指定节点', node);
+            Tree.logger && Tree.logger.log('删除指定节点', node, nodeKey);
             $node.remove();
             removeNodeData(conf, nodeKey);
         });
     }
 
     /**
-     * TODO 删除指定节点数据
+     * 删除指定节点数据
      * @param conf {*} 配置
      * @param nodeKey {string} 节点key
      */
     function removeNodeData(conf, nodeKey) {
         var node = conf.dataSet.dataMap[nodeKey];
-
-        // 缓存
-        delete conf.dataSet.dataMap[nodeKey];
-        // 原始数据
         c.arrays.remove(conf.dataSet.data, node);
-        // 选中的数据缓存
-        c.arrays.remove(conf.dataSet.action, nodeKey);
-        // TODO 展开的数据缓存
-        // 从当前节点向下查找
-        var parentsKey = [nodeKey];
-        c.common.each(conf.dataSet.upperLevel, function (parentKey, childKey) {
-            if (c.arrays.contains(parentsKey, parentKey))
-                c.arrays.push(parentsKey, childKey);
-        });
-        c.arrays.remove(conf.dataSet.expand, parentsKey);
-        // TODO 父级缓存
-        // TODO 父级链缓存
-        updateCached(conf, conf.dataSet.data);
+        var childrenKeys = c.objects.getKeysByValue(conf.dataSet.upperLevel, nodeKey);
+        childrenKeys.push(nodeKey);
+
+        var
+            removedMap = c.objects.removeKeys(conf.dataSet.dataMap, childrenKeys),
+            parentKey = conf.dataSet.upperLevel[nodeKey];
+        if (!c.valid.nullOrUndefined(parentKey)) {
+            var
+                parent = conf.dataSet.dataMap[parentKey],
+                children = Tree.reader.children(parent),
+                nodes = c.objects.values(removedMap);
+            c.arrays.remove(children, nodes);
+        }
+
+        c.arrays.remove(conf.dataSet.expand, childrenKeys);
+        c.arrays.remove(conf.dataSet.action, childrenKeys);
+        c.objects.removeKeys(conf.dataSet.upperLevel, childrenKeys);
+        c.objects.removeKeys(conf.dataSet.upperLevels, childrenKeys);
+
     }
 
     /**
@@ -623,14 +620,18 @@
 
         // 是否允许追加子节点
         // 调整子节点视图
-        var $children = Tree.creator.children(conf, node);
-        if (false === c.common.apply(conf.events.beforeAppend, this, $node, node, 'children')) {
-            $node.removeClass(Tree.style.children_loading);
-            Tree.logger && Tree.logger.log('阻止追加子节点', node, conf);
-            return;
+        var $children = $node.find('>.' + Tree.style.children);
+        if (!$children || !$children.length) {
+            $children = Tree.creator.children(conf, node);
+            if (false === c.common.apply(conf.events.beforeAppend, this, $node, node, 'children')) {
+                $node.removeClass(Tree.style.children_loading);
+                Tree.logger && Tree.logger.log('阻止追加子节点', node, conf);
+                return;
+            }
         }
 
         // 追加子节点并使用动画展开
+        $node.addClass(Tree.style.node_open);
         c.arrays.push(conf.dataSet.expand, nodeKey);
         c.arrays.unique(conf.dataSet.expand);
         $children.appendTo($node).hide().slideDown(200, function () {
@@ -662,7 +663,7 @@
     function removeExpandByParent(conf, nodeKey) {
         var node = conf.dataSet.dataMap[nodeKey];
         c.arrays.remove(conf.dataSet.expand, nodeKey);
-        c.common.each(Tree.readers.children(node), function (childNode) {
+        c.common.each(Tree.reader.children(node), function (childNode) {
             var key = c.objects.getKeyByValue(conf.dataSet.dataMap, childNode);
             removeExpandByParent(conf, key);
         });
@@ -691,27 +692,45 @@
             self: self,
             $origin: c.valid.isJQuery($c) ? $c : $($c),
             templates: {
-                $bounds: null,          // 主容器
-                $tree: null             // 树控件
+                /** 主容器 */
+                $bounds: null,
+                /** 树控件 */
+                $tree: null
             },
+            /** 数据相关 */
             dataSet: {
-                data: [],       // 控件数据
-                dataMap: {},    // K-数据Key, V-节点数据
-                expand: [],     // 展开的数据Key
-                action: [],     // 选中的数据Key
-                upperLevel: {}, // K-数据Key, V-父级数据Key
-                upperLevels: {} // K-数据Key, V-父级数据Keys数组
+                /** 控件数据 */
+                data: [],
+                /** K-数据Key, V-节点数据 */
+                dataMap: {},
+                /** 展开的数据Key */
+                expand: [],
+                /** 选中的数据Key */
+                action: [],
+                /** K-数据Key, V-父级数据Key */
+                upperLevel: {},
+                /** K-数据Key, V-父级数据Keys数组 */
+                upperLevels: {}
             },
             events: {
-                loaded: null,           // 加载完成
-                destroyed: null,        // 卸载完成
-                beforeAppend: null,     // 节点追加前
-                afterAppend: null,      // 节点追加后
-                updated: null,          // 更新完成,
-                beforeExpand: null,     // 子节点展开前
-                afterExpand: null,      // 子节点展开后
-                beforeClose: null,      // 子节点关闭前
-                afterClose: null        // 子节点关闭后
+                /** 加载完成 */
+                loaded: null,
+                /** 卸载完成 */
+                destroyed: null,
+                /** 节点追加前 */
+                beforeAppend: null,
+                /** 节点追加后 */
+                afterAppend: null,
+                /** 更新完成, */
+                updated: null,
+                /** 子节点展开前 */
+                beforeExpand: null,
+                /** 子节点展开后 */
+                afterExpand: null,
+                /** 子节点关闭前 */
+                beforeClose: null,
+                /** 子节点关闭后 */
+                afterClose: null
             },
             class: '',
             style: '',

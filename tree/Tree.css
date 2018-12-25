@@ -19,6 +19,13 @@
 .jsu-tree-bounds .jsu-tree .jsu-tree-node .jsu-tree-title:hover {background-color:#F5F5F5;}
 .jsu-tree-bounds .jsu-tree .jsu-tree-node .jsu-tree-title > .jsu-tree-other > .jsu-tree-other-container > * {cursor:pointer; opacity:.5;}
 .jsu-tree-bounds .jsu-tree .jsu-tree-node > .jsu-tree-title > .jsu-tree-selection-activate {display:none;}
+.jsu-tree-bounds .jsu-tree .jsu-tree-node > .jsu-tree-title > .jsu-tree-expander {
+    -webkit-transition: transform 200ms;
+    -moz-transition: transform 200ms;
+    -ms-transition: transform 200ms;
+    -o-transition: transform 200ms;
+    transition: transform 200ms;}
+.jsu-tree-bounds .jsu-tree .jsu-tree-node.jsu-tree-node-open > .jsu-tree-title > .jsu-tree-expander {-webkit-transform:rotate(90deg); -moz-transform:rotate(90deg); -ms-transform:rotate(90deg); -o-transform:rotate(90deg); transform:rotate(90deg);}
 
 .jsu-tree-bounds .jsu-tree .jsu-tree-node > .jsu-tree-title > .jsu-tree-selection-default {display:block;}
 .jsu-tree-bounds .jsu-tree .jsu-tree-node.jsu-tree-node-selected > .jsu-tree-title > .jsu-tree-selection-activate {display:block;}

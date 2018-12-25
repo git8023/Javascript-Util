@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>树菜单</title>
+</head>
+<body>
+
+<div class="tree-test-container">
+    <div class="tree"></div>
+</div>
+
+<script src="statics/jquery-v3.3.1.js"></script>
+<script src="statics/jsu/util/common.js"></script>
+<script src="statics/jsu/util/Logger.js"></script>
+<script src="statics/jsu/tree/Tree2.js"></script>
+<script>
+    $(function () {
+        var tree = new jsu.Tree($('.tree'), false, true);
+        tree.init();
+
+        tree.data([{
+            label: '节点1',
+            key: '1',
+            children: [{
+                label: '节点1-1',
+                key: '1-1'
+            }]
+        }]);
+    });
+</script>
+</body>
+</html>
